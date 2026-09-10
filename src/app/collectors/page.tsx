@@ -25,6 +25,8 @@ export default function CollectorsPage() {
   const [hasSearched, setHasSearched] = useState<boolean>(false);
 
   const [filterPrefecture, setFilterPrefecture] = useState<string>("all");
+  // 収集者リストを保存するための状態を追加
+  const [uniqueCollectors, setUniqueCollectors] = useState<string[]>([]);
 
   useEffect(() => {
     const savedName = localStorage.getItem("fukeiin_user");
@@ -32,7 +34,22 @@ export default function CollectorsPage() {
       setUserName(savedName);
       setIsLoggedIn(true);
     }
-    setIsLoading(false);
+    
+    // データベースから収集者の名前をすべて取得して重複をなくす処理
+    const fetchCollectors = async () => {
+      const { data, error } = await supabase
+        .from("post_offices")
+        .select("collector_name")
+        .not("collector_name", "is", null);
+        
+      if (!error && data) {
+        const names = Array.from(new Set(data.map((po) => po.collector_name).filter(Boolean))).sort();
+        setUniqueCollectors(names as string[]);
+      }
+      setIsLoading(false);
+    };
+
+    fetchCollectors();
   }, []);
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -42,10 +59,11 @@ export default function CollectorsPage() {
     setIsFetching(true);
     setHasSearched(true);
     
+    // プルダウンでの選択になったため、あいまい検索(ilike)から完全一致検索(eq)に変更
     const { data, error } = await supabase
       .from("post_offices")
       .select("*")
-      .ilike("collector_name", `%${searchQuery}%`)
+      .eq("collector_name", searchQuery)
       .order("prefecture")
       .order("name");
 
@@ -106,19 +124,22 @@ export default function CollectorsPage() {
         <form onSubmit={handleSearch} className="flex flex-col gap-4">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
-              <label className="block text-gray-700 font-medium mb-2">収集者の名前を入力</label>
-              <input
-                type="text"
+              <label className="block text-gray-700 font-medium mb-2">収集者の名前を選択</label>
+              <select
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="例：地理研太郎"
-                className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+                className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+              >
+                <option value="">選択してください</option>
+                {uniqueCollectors.map((name) => (
+                  <option key={name} value={name}>{name}</option>
+                ))}
+              </select>
             </div>
             <div className="flex items-end">
               <button
                 type="submit"
-                disabled={isFetching}
+                disabled={isFetching || !searchQuery}
                 className="bg-blue-600 text-white font-bold py-2 px-6 rounded hover:bg-blue-700 transition w-full sm:w-auto disabled:bg-gray-400"
               >
                 検索
