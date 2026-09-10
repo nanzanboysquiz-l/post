@@ -312,15 +312,16 @@ export default function Home() {
                   )}
                 </div>
                 <div className="flex items-center gap-2">
-                  <span
-                    className={`text-xs px-3 py-1 rounded-full border ${
-                      po.is_collected 
-                        ? "bg-green-100 text-green-800 border-green-300" 
-                        : "bg-gray-100 text-gray-600 border-gray-300"
-                    }`}
-                  >
-                    {po.is_collected ? `取得済 (${po.collected_date})` : "未取得"}
-                  </span>
+                  <button
+  onClick={() => toggleStatus(po.id, po.is_collected)}
+  className={`text-xs px-3 py-1 rounded-full border transition-colors ${
+    po.is_collected 
+      ? "bg-green-100 text-green-800 border-green-300 hover:bg-green-200" 
+      : "bg-gray-100 text-gray-600 border-gray-300 hover:bg-gray-200"
+  }`}
+>
+  {po.is_collected ? `取得済 (${po.collected_date})` : "未取得"}
+</button>
                   <button
                     onClick={() => openEditModal(po)}
                     className="text-xs bg-blue-50 text-blue-600 px-3 py-1 rounded border border-blue-200 hover:bg-blue-100 transition-colors print:hidden"
