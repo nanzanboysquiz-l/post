@@ -256,12 +256,12 @@ export default function Home() {
 
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1">
-            <label className="block text-gray-700 font-medium mb-2 text-sm">郵便局名で検索</label>
+            <label className="block text-gray-700 font-medium mb-2 text-sm">キーワード検索</label>
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="例：札幌中央"
+              placeholder="例：札幌中央　西興部村"
               className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
