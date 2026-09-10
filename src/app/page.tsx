@@ -193,7 +193,10 @@ export default function Home() {
       </main>
     );
   }
-
+// 現在表示している都道府県のデータから、収集者の名前を重複なく抽出
+  const uniqueCollectors = Array.from(
+    new Set(postOffices.map((po) => po.collector_name).filter(Boolean))
+  ).sort();
  const filteredPostOffices = postOffices.filter((po) => {
     if (searchQuery) {
       const matchName = po.name.includes(searchQuery);
@@ -265,15 +268,18 @@ export default function Home() {
               className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <div className="flex-1">
+         <div className="flex-1">
             <label className="block text-gray-700 font-medium mb-2 text-sm">収集者で検索</label>
-            <input
-              type="text"
+            <select
               value={collectorFilter}
               onChange={(e) => setCollectorFilter(e.target.value)}
-              placeholder="例：地理研太郎"
-              className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+              className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+            >
+              <option value="">すべての収集者</option>
+              {uniqueCollectors.map((name) => (
+                <option key={name} value={name}>{name}</option>
+              ))}
+            </select>
           </div>
           <div>
             <label className="block text-gray-700 font-medium mb-2 text-sm">収集状況</label>
