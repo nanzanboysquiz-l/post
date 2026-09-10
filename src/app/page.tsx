@@ -194,9 +194,13 @@ export default function Home() {
     );
   }
 
-  const filteredPostOffices = postOffices.filter((po) => {
-    if (searchQuery && !po.name.includes(searchQuery)) {
-      return false;
+ const filteredPostOffices = postOffices.filter((po) => {
+    if (searchQuery) {
+      const matchName = po.name.includes(searchQuery);
+      const matchMuni = po.municipality ? po.municipality.includes(searchQuery) : false;
+      if (!matchName && !matchMuni) {
+        return false;
+      }
     }
     if (filterType === "collected" && !po.is_collected) {
       return false;
