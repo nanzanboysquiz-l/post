@@ -19,8 +19,7 @@ export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   
-  // 初期値を "all" に変更
-  const [selectedPrefecture, setSelectedPrefecture] = useState<string>("all");
+  const [selectedPrefecture, setSelectedPrefecture] = useState<string>("北海道");
   const [postOffices, setPostOffices] = useState<any[]>([]);
   const [isFetching, setIsFetching] = useState<boolean>(false);
 
@@ -47,15 +46,11 @@ export default function Home() {
 
     const fetchPostOffices = async () => {
       setIsFetching(true);
-      
-      // selectedPrefecture が "all" かどうかでクエリを分岐
-      let query = supabase.from("post_offices").select("*");
-      
-      if (selectedPrefecture !== "all") {
-        query = query.eq("prefecture", selectedPrefecture);
-      }
-      
-      const { data, error } = await query.order("name", { ascending: true });
+      const { data, error } = await supabase
+        .from("post_offices")
+        .select("*")
+        .eq("prefecture", selectedPrefecture)
+        .order("name", { ascending: true });
 
       if (error) {
         console.error("データ取得エラー:", error.message);
@@ -202,7 +197,7 @@ export default function Home() {
   const uniqueCollectors = Array.from(
     new Set(postOffices.map((po) => po.collector_name).filter(Boolean))
   ).sort();
-  
+
   const filteredPostOffices = postOffices.filter((po) => {
     if (searchQuery) {
       const matchName = po.name.includes(searchQuery);
@@ -245,9 +240,7 @@ export default function Home() {
       </header>
 
       <div className="hidden print:block mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">
-          Rits地理研風景印データベース - {selectedPrefecture === "all" ? "すべて" : selectedPrefecture}
-        </h1>
+        <h1 className="text-2xl font-bold text-gray-800">Rits地理研風景印データベース - {selectedPrefecture}</h1>
         <p className="text-gray-600">出力日: {new Date().toLocaleDateString("ja-JP")}</p>
       </div>
 
@@ -259,8 +252,6 @@ export default function Home() {
             onChange={(e) => setSelectedPrefecture(e.target.value)}
             className="border border-gray-300 p-2 rounded w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
           >
-            {/* 「すべて」のオプションを追加 */}
-            <option value="all">すべての都道府県</option>
             {PREFECTURES.map((pref) => (
               <option key={pref} value={pref}>{pref}</option>
             ))}
@@ -309,7 +300,7 @@ export default function Home() {
       <div className="bg-white p-6 rounded shadow print:shadow-none print:p-0">
         <div className="flex justify-between items-center mb-4 border-b pb-2">
           <h2 className="text-lg font-bold">
-            {selectedPrefecture === "all" ? "すべての郵便局" : `${selectedPrefecture}の郵便局`} ({filteredPostOffices.length}局)
+            {selectedPrefecture}の郵便局 ({filteredPostOffices.length}局)
           </h2>
           <button
             onClick={handlePrint}
@@ -326,13 +317,7 @@ export default function Home() {
             {filteredPostOffices.map((po) => (
               <li key={po.id} className="flex justify-between items-center p-3 hover:bg-gray-50 border-b last:border-0 print:border-b-gray-300 print:break-inside-avoid">
                 <div className="flex flex-col">
-                  <span className="font-medium text-gray-800">
-                    {/* すべて表示の時は都道府県名も表示するとわかりやすいです */}
-                    {selectedPrefecture === "all" && (
-                      <span className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded mr-2">{po.prefecture}</span>
-                    )}
-                    {po.name}
-                  </span>
+                  <span className="font-medium text-gray-800">{po.name}</span>
                   {po.collector_name && (
                     <span className="text-xs text-gray-600 mt-1">収集者: {po.collector_name}</span>
                   )}
