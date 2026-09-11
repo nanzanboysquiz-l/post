@@ -19,7 +19,8 @@ export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   
-  const [selectedPrefecture, setSelectedPrefecture] = useState<string>("北海道");
+  // 初期値を "all" に変更
+  const [selectedPrefecture, setSelectedPrefecture] = useState<string>("all");
   const [postOffices, setPostOffices] = useState<any[]>([]);
   const [isFetching, setIsFetching] = useState<boolean>(false);
 
@@ -46,11 +47,15 @@ export default function Home() {
 
     const fetchPostOffices = async () => {
       setIsFetching(true);
-      const { data, error } = await supabase
-        .from("post_offices")
-        .select("*")
-        .eq("prefecture", selectedPrefecture)
-        .order("name", { ascending: true });
+      
+      // selectedPrefecture が "all" かどうかでクエリを分岐
+      let query = supabase.from("post_offices").select("*");
+      
+      if (selectedPrefecture !== "all") {
+        query = query.eq("prefecture", selectedPrefecture);
+      }
+      
+      const { data, error } = await query.order("name", { ascending: true });
 
       if (error) {
         console.error("データ取得エラー:", error.message);
@@ -193,11 +198,12 @@ export default function Home() {
       </main>
     );
   }
-// 現在表示している都道府県のデータから、収集者の名前を重複なく抽出
+
   const uniqueCollectors = Array.from(
     new Set(postOffices.map((po) => po.collector_name).filter(Boolean))
   ).sort();
- const filteredPostOffices = postOffices.filter((po) => {
+  
+  const filteredPostOffices = postOffices.filter((po) => {
     if (searchQuery) {
       const matchName = po.name.includes(searchQuery);
       const matchMuni = po.municipality ? po.municipality.includes(searchQuery) : false;
@@ -219,7 +225,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gray-50 p-4 sm:p-8 relative">
-   <header className="flex justify-between items-center mb-8 bg-white p-4 rounded shadow print:hidden">
+      <header className="flex justify-between items-center mb-8 bg-white p-4 rounded shadow print:hidden">
         <div className="flex items-center gap-3">
           <img src="/logo.jpg" alt="地理研風景印" className="w-10 h-10 object-cover rounded-full border border-gray-200" />
           <h1 className="text-xl font-bold text-gray-800">Rits地理研風景印データベース</h1>
@@ -239,7 +245,9 @@ export default function Home() {
       </header>
 
       <div className="hidden print:block mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Rits地理研風景印データベース - {selectedPrefecture}</h1>
+        <h1 className="text-2xl font-bold text-gray-800">
+          Rits地理研風景印データベース - {selectedPrefecture === "all" ? "すべて" : selectedPrefecture}
+        </h1>
         <p className="text-gray-600">出力日: {new Date().toLocaleDateString("ja-JP")}</p>
       </div>
 
@@ -251,6 +259,8 @@ export default function Home() {
             onChange={(e) => setSelectedPrefecture(e.target.value)}
             className="border border-gray-300 p-2 rounded w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
           >
+            {/* 「すべて」のオプションを追加 */}
+            <option value="all">すべての都道府県</option>
             {PREFECTURES.map((pref) => (
               <option key={pref} value={pref}>{pref}</option>
             ))}
@@ -264,7 +274,7 @@ export default function Home() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="例：札幌中央　西興部村"
+              placeholder="例：札幌中央 西興部村"
               className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -299,7 +309,7 @@ export default function Home() {
       <div className="bg-white p-6 rounded shadow print:shadow-none print:p-0">
         <div className="flex justify-between items-center mb-4 border-b pb-2">
           <h2 className="text-lg font-bold">
-            {selectedPrefecture}の郵便局 ({filteredPostOffices.length}局)
+            {selectedPrefecture === "all" ? "すべての郵便局" : `${selectedPrefecture}の郵便局`} ({filteredPostOffices.length}局)
           </h2>
           <button
             onClick={handlePrint}
@@ -316,7 +326,13 @@ export default function Home() {
             {filteredPostOffices.map((po) => (
               <li key={po.id} className="flex justify-between items-center p-3 hover:bg-gray-50 border-b last:border-0 print:border-b-gray-300 print:break-inside-avoid">
                 <div className="flex flex-col">
-                  <span className="font-medium text-gray-800">{po.name}</span>
+                  <span className="font-medium text-gray-800">
+                    {/* すべて表示の時は都道府県名も表示するとわかりやすいです */}
+                    {selectedPrefecture === "all" && (
+                      <span className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded mr-2">{po.prefecture}</span>
+                    )}
+                    {po.name}
+                  </span>
                   {po.collector_name && (
                     <span className="text-xs text-gray-600 mt-1">収集者: {po.collector_name}</span>
                   )}
@@ -326,15 +342,15 @@ export default function Home() {
                 </div>
                 <div className="flex items-center gap-2">
                   <button
-  onClick={() => toggleStatus(po.id, po.is_collected)}
-  className={`text-xs px-3 py-1 rounded-full border transition-colors ${
-    po.is_collected 
-      ? "bg-green-100 text-green-800 border-green-300 hover:bg-green-200" 
-      : "bg-gray-100 text-gray-600 border-gray-300 hover:bg-gray-200"
-  }`}
->
-  {po.is_collected ? `取得済 (${po.collected_date})` : "未取得"}
-</button>
+                    onClick={() => toggleStatus(po.id, po.is_collected)}
+                    className={`text-xs px-3 py-1 rounded-full border transition-colors ${
+                      po.is_collected 
+                        ? "bg-green-100 text-green-800 border-green-300 hover:bg-green-200" 
+                        : "bg-gray-100 text-gray-600 border-gray-300 hover:bg-gray-200"
+                    }`}
+                  >
+                    {po.is_collected ? `取得済 (${po.collected_date})` : "未取得"}
+                  </button>
                   <button
                     onClick={() => openEditModal(po)}
                     className="text-xs bg-blue-50 text-blue-600 px-3 py-1 rounded border border-blue-200 hover:bg-blue-100 transition-colors print:hidden"
