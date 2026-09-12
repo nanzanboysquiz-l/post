@@ -220,12 +220,17 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gray-50 p-4 sm:p-8 relative">
-      <header className="flex justify-between items-center mb-8 bg-white p-4 rounded shadow print:hidden">
+     <header className="flex justify-between items-center mb-8 bg-white p-4 rounded shadow print:hidden">
         <div className="flex items-center gap-3">
           <img src="/logo.jpg" alt="地理研風景印" className="w-10 h-10 object-cover rounded-full border border-gray-200" />
           <h1 className="text-xl font-bold text-gray-800">Rits地理研風景印データベース</h1>
         </div>
         <div className="flex items-center gap-4">
+          {/* ここから追加したボタン */}
+          <Link href="/add" className="text-sm bg-green-700 text-white py-1 px-3 rounded hover:bg-green-800 transition font-medium print:hidden">
+            新規登録
+          </Link>
+          {/* ここまで追加したボタン */}
           <Link href="/collectors" className="text-sm bg-red-800 text-white py-1 px-3 rounded hover:bg-red-900 transition font-medium">
             収集者別リストを見る
           </Link>
