@@ -362,47 +362,30 @@
         <script src="./resources/qgis2web.js"></script>
                 <script src="./resources/qgis2web.js"></script>
 
-        <!-- スマホ時のみピンの当たり判定（hitTolerance）を広げるスクリプト -->
+               <script src="./resources/qgis2web.js"></script>
+
+        <!-- スマホ時のみピンの当たり判定（hitTolerance）を安全に広げるスクリプト -->
         <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                if (typeof map !== 'undefined') {
-                    // スマホ判定 (画面幅768px以下、またはモバイル端末)
-                    var isMobile = window.innerWidth <= 768 || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-                    
-                    // スマホの時は 15px、PCの時は 2px の当たり判定許容エリアを設定
-                    var hitTolerancePx = isMobile ? 15 : 2;
-
-                    // シングルクリックイベントのヒット判定エリアを上書き拡張
-                    map.on('singleclick', function(evt) {
-                        var popupContent = document.getElementById('popup-content');
+            (function() {
+                window.addEventListener('load', function() {
+                    if (typeof map !== 'undefined' && map && map.forEachFeatureAtPixel) {
+                        // スマホ判定 (画面幅768px以下、またはモバイル端末)
+                        var isMobile = window.innerWidth <= 768 || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
                         
-                        // hitTolerance を指定してピンを取得
-                        var feature = map.forEachFeatureAtPixel(evt.pixel, function(feature) {
-                            return feature;
-                        }, {
-                            hitTolerance: hitTolerancePx  /* ← ここでスマホ時の当たり判定を拡張 */
-                        });
-
-                        // ピンがタップされた場合のポップアップ表示
-                        if (feature) {
-                            var coordinate = evt.coordinate;
-                            var properties = feature.getProperties();
-                            var html = '<table style="width:100%; border-collapse:collapse;">';
-                            
-                            for (var key in properties) {
-                                if (key !== 'geometry' && properties[key] !== null) {
-                                    html += '<tr><th style="padding:4px 8px 4px 0; color:#6c757d; font-size:0.8rem; text-align:left; vertical-align:top;">' + key + '</th>' +
-                                            '<td style="padding:4px 0; font-weight:500; font-size:0.85rem;">' + Autolinker.link(properties[key].toString()) + '</td></tr>';
+                        if (isMobile) {
+                            // OpenLayersの判定関数を安全にフックして、スマホ時のみ15pxの判定許容エリアを自動適用
+                            var originalForEachFeatureAtPixel = map.forEachFeatureAtPixel.bind(map);
+                            map.forEachFeatureAtPixel = function(pixel, callback, options) {
+                                options = options || {};
+                                if (options.hitTolerance === undefined || options.hitTolerance < 15) {
+                                    options.hitTolerance = 15; // スマホ時はタップ許容エリアを15pxに自動拡張
                                 }
-                            }
-                            html += '</table>';
-                            
-                            popupContent.innerHTML = html;
-                            overlay.setPosition(coordinate);
+                                return originalForEachFeatureAtPixel(pixel, callback, options);
+                            };
                         }
-                    });
-                }
-            });
+                    }
+                });
+            })();
         </script>
     </body>
 </html>
