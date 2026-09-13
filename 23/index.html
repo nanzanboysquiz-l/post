@@ -180,23 +180,26 @@
                 backdrop-filter: blur(12px);
                 box-shadow: var(--shadow-md);
                 padding: 1.25rem;
+                padding-top: 1.5rem;
                 border-radius: var(--radius-lg);
                 border: 1px solid rgba(255, 255, 255, 0.9);
-                bottom: 12px;
-                left: -50px;
+                bottom: 18px;
+                left: 50%;
+                transform: translateX(-50%);
                 min-width: 280px;
                 max-width: 360px;
-                animation: popupFadeIn 0.25s cubic-bezier(0.1, 0.9, 0.2, 1);
+                animation: popupFadeIn 0.2s cubic-bezier(0.1, 0.9, 0.2, 1);
+                transform-origin: center bottom;
             }
 
             @keyframes popupFadeIn {
                 from {
                     opacity: 0;
-                    transform: translateY(8px) scale(0.96);
+                    transform: translate(-50%, 10px) scale(0.95);
                 }
                 to {
                     opacity: 1;
-                    transform: translateY(0) scale(1);
+                    transform: translate(-50%, 0) scale(1);
                 }
             }
 
@@ -208,38 +211,58 @@
                 width: 0;
                 position: absolute;
                 pointer-events: none;
+                left: 50%;
+                transform: translateX(-50%);
             }
 
             .ol-popup::after {
                 border-top-color: rgba(255, 255, 255, 0.95);
                 border-width: 10px;
-                left: 48px;
-                margin-left: -10px;
             }
 
+            /* ×ボタンのヒットエリア（当たり判定）の拡大 */
             .ol-popup-closer {
                 text-decoration: none;
                 position: absolute;
-                top: 10px;
-                right: 12px;
+                top: 4px;
+                right: 4px;
+                width: 44px;
+                height: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                cursor: pointer;
+                z-index: 10;
+            }
+
+            /* 見た目の円アイコン部分 */
+            .ol-popup-closer::before {
+                content: "";
+                position: absolute;
                 width: 28px;
                 height: 28px;
                 border-radius: 50%;
                 background: #f1f3f5;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: var(--text-muted);
                 transition: all 0.2s ease;
+                z-index: 1;
             }
 
-            .ol-popup-closer:after {
-                content: "✖";
-                font-size: 0.75rem;
+            .ol-popup-closer::after {
+                content: "✕";
+                font-size: 0.8rem;
+                font-weight: bold;
+                color: var(--text-muted);
+                z-index: 2;
+                transition: color 0.2s ease;
             }
 
-            .ol-popup-closer:hover {
+            .ol-popup-closer:hover::before {
                 background: var(--primary-color);
+                transform: scale(1.08);
+            }
+
+            .ol-popup-closer:hover::after {
                 color: #ffffff;
             }
 
