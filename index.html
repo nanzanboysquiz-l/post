@@ -2,65 +2,292 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>風景印マップ一覧</title>
+  <title>風景印を保有する郵便局マップ（日本地図）</title>
   <style>
     body {
       font-family: system-ui, sans-serif;
       margin: 2rem;
       background: #f7f7f7;
       color: #333;
-      line-height: 1.6;
+      text-align: center;
     }
 
     h1 {
       font-size: 2rem;
       margin-bottom: 1.5rem;
-      text-align: center;
-      color: #d14b4b; /* 郵便っぽい赤 */
+      color: #d14b4b;
       letter-spacing: 0.05em;
     }
 
-    .list-container {
-      max-width: 700px;
+    .map-wrapper {
+      max-width: 800px;
       margin: 0 auto;
-      display: grid;
-      gap: 1rem;
     }
 
-    .pref-card {
-      background: #fff;
-      padding: 1rem 1.2rem;
-      border-radius: 10px;
-      border: 1px solid #e3e3e3;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    svg {
+      width: 100%;
+      height: auto;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
 
-    .pref-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    a path {
+      fill: #e3e3e3;
+      stroke: #555;
+      stroke-width: 1;
+      transition: 0.2s;
     }
 
-    .pref-card a {
-      color: #0055aa;
-      text-decoration: none;
-      font-size: 1.1rem;
-      font-weight: 600;
-    }
-
-    .pref-card a:hover {
-      text-decoration: underline;
+    a:hover path {
+      fill: #ff6666;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
 
-<h1>風景印を保有する郵便局マップ（都道府県別）</h1>
+<h1>風景印を保有する郵便局マップ（日本地図・都道府県別リンク）</h1>
 
-<div class="list-container">
-  <div class="pref-card">
-    <a href="23/index.html">愛知県</a>
-  </div>
+<div class="map-wrapper">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1200">
+
+    <!-- 北海道 01 -->
+    <a href="01/index.html">
+      <path id="pref01" d="M 650 120 L 700 160 L 680 210 L 620 200 Z" />
+    </a>
+
+    <!-- 青森 02 -->
+    <a href="02/index.html">
+      <path id="pref02" d="M 580 260 L 620 280 L 610 320 L 570 310 Z" />
+    </a>
+
+    <!-- 岩手 03 -->
+    <a href="03/index.html">
+      <path id="pref03" d="M 590 320 L 630 340 L 620 400 L 580 380 Z" />
+    </a>
+
+    <!-- 宮城 04 -->
+    <a href="04/index.html">
+      <path id="pref04" d="M 560 400 L 600 420 L 590 460 L 550 450 Z" />
+    </a>
+
+    <!-- 秋田 05 -->
+    <a href="05/index.html">
+      <path id="pref05" d="M 540 320 L 580 340 L 570 380 L 530 360 Z" />
+    </a>
+
+    <!-- 山形 06 -->
+    <a href="06/index.html">
+      <path id="pref06" d="M 530 380 L 570 400 L 560 440 L 520 430 Z" />
+    </a>
+
+    <!-- 福島 07 -->
+    <a href="07/index.html">
+      <path id="pref07" d="M 550 460 L 590 480 L 580 520 L 540 510 Z" />
+    </a>
+
+    <!-- 茨城 08 -->
+    <a href="08/index.html">
+      <path id="pref08" d="M 580 520 L 620 530 L 610 570 L 570 560 Z" />
+    </a>
+
+    <!-- 栃木 09 -->
+    <a href="09/index.html">
+      <path id="pref09" d="M 540 520 L 580 530 L 570 560 L 530 550 Z" />
+    </a>
+
+    <!-- 群馬 10 -->
+    <a href="10/index.html">
+      <path id="pref10" d="M 520 500 L 560 510 L 550 540 L 510 530 Z" />
+    </a>
+
+    <!-- 埼玉 11 -->
+    <a href="11/index.html">
+      <path id="pref11" d="M 520 540 L 560 550 L 550 580 L 510 570 Z" />
+    </a>
+
+    <!-- 千葉 12 -->
+    <a href="12/index.html">
+      <path id="pref12" d="M 580 580 L 620 600 L 610 640 L 570 630 Z" />
+    </a>
+
+    <!-- 東京 13 -->
+    <a href="13/index.html">
+      <path id="pref13" d="M 540 580 L 580 590 L 570 620 L 530 610 Z" />
+    </a>
+
+    <!-- 神奈川 14 -->
+    <a href="14/index.html">
+      <path id="pref14" d="M 540 620 L 580 630 L 570 660 L 530 650 Z" />
+    </a>
+
+    <!-- 新潟 15 -->
+    <a href="15/index.html">
+      <path id="pref15" d="M 480 430 L 520 440 L 510 480 L 470 470 Z" />
+    </a>
+
+    <!-- 富山 16 -->
+    <a href="16/index.html">
+      <path id="pref16" d="M 450 440 L 490 450 L 480 480 L 440 470 Z" />
+    </a>
+
+    <!-- 石川 17 -->
+    <a href="17/index.html">
+      <path id="pref17" d="M 430 420 L 470 430 L 460 460 L 420 450 Z" />
+    </a>
+
+    <!-- 福井 18 -->
+    <a href="18/index.html">
+      <path id="pref18" d="M 420 460 L 460 470 L 450 500 L 410 490 Z" />
+    </a>
+
+    <!-- 山梨 19 -->
+    <a href="19/index.html">
+      <path id="pref19" d="M 510 570 L 540 580 L 530 610 L 500 600 Z" />
+    </a>
+
+    <!-- 長野 20 -->
+    <a href="20/index.html">
+      <path id="pref20" d="M 470 500 L 510 510 L 500 560 L 460 550 Z" />
+    </a>
+
+    <!-- 岐阜 21 -->
+    <a href="21/index.html">
+      <path id="pref21" d="M 440 520 L 480 530 L 470 570 L 430 560 Z" />
+    </a>
+
+    <!-- 静岡 22 -->
+    <a href="22/index.html">
+      <path id="pref22" d="M 500 630 L 540 640 L 530 680 L 490 670 Z" />
+    </a>
+
+    <!-- 愛知 23 -->
+    <a href="23/index.html">
+      <path id="pref23" d="M 460 600 L 500 610 L 490 650 L 450 640 Z" />
+    </a>
+
+    <!-- 三重 24 -->
+    <a href="24/index.html">
+      <path id="pref24" d="M 430 620 L 470 630 L 460 670 L 420 660 Z" />
+    </a>
+
+    <!-- 滋賀 25 -->
+    <a href="25/index.html">
+      <path id="pref25" d="M 400 560 L 440 570 L 430 600 L 390 590 Z" />
+    </a>
+
+    <!-- 京都 26 -->
+    <a href="26/index.html">
+      <path id="pref26" d="M 390 530 L 430 540 L 420 580 L 380 570 Z" />
+    </a>
+
+    <!-- 大阪 27 -->
+    <a href="27/index.html">
+      <path id="pref27" d="M 390 590 L 430 600 L 420 630 L 380 620 Z" />
+    </a>
+
+    <!-- 兵庫 28 -->
+    <a href="28/index.html">
+      <path id="pref28" d="M 340 530 L 390 540 L 380 600 L 330 590 Z" />
+    </a>
+
+    <!-- 奈良 29 -->
+    <a href="29/index.html">
+      <path id="pref29" d="M 410 610 L 450 620 L 440 650 L 400 640 Z" />
+    </a>
+
+    <!-- 和歌山 30 -->
+    <a href="30/index.html">
+      <path id="pref30" d="M 370 630 L 410 640 L 400 680 L 360 670 Z" />
+    </a>
+
+    <!-- 鳥取 31 -->
+    <a href="31/index.html">
+      <path id="pref31" d="M 300 510 L 340 520 L 330 550 L 290 540 Z" />
+    </a>
+
+    <!-- 島根 32 -->
+    <a href="32/index.html">
+      <path id="pref32" d="M 260 500 L 300 510 L 290 540 L 250 530 Z" />
+    </a>
+
+    <!-- 岡山 33 -->
+    <a href="33/index.html">
+      <path id="pref33" d="M 310 550 L 340 560 L 330 590 L 300 580 Z" />
+    </a>
+
+    <!-- 広島 34 -->
+    <a href="34/index.html">
+      <path id="pref34" d="M 280 560 L 310 570 L 300 600 L 270 590 Z" />
+    </a>
+
+    <!-- 山口 35 -->
+    <a href="35/index.html">
+      <path id="pref35" d="M 230 550 L 270 560 L 260 590 L 220 580 Z" />
+    </a>
+
+    <!-- 徳島 36 -->
+    <a href="36/index.html">
+      <path id="pref36" d="M 360 700 L 390 710 L 380 740 L 350 730 Z" />
+    </a>
+
+    <!-- 香川 37 -->
+    <a href="37/index.html">
+      <path id="pref37" d="M 340 680 L 370 690 L 360 710 L 330 700 Z" />
+    </a>
+
+    <!-- 愛媛 38 -->
+    <a href="38/index.html">
+      <path id="pref38" d="M 300 680 L 340 690 L 330 720 L 290 710 Z" />
+    </a>
+
+    <!-- 高知 39 -->
+    <a href="39/index.html">
+      <path id="pref39" d="M 320 720 L 360 730 L 350 760 L 310 750 Z" />
+    </a>
+
+    <!-- 福岡 40 -->
+    <a href="40/index.html">
+      <path id="pref40" d="M 200 600 L 240 610 L 230 640 L 190 630 Z" />
+    </a>
+
+    <!-- 佐賀 41 -->
+    <a href="41/index.html">
+      <path id="pref41" d="M 180 620 L 210 630 L 200 650 L 170 640 Z" />
+    </a>
+
+    <!-- 長崎 42 -->
+    <a href="42/index.html">
+      <path id="pref42" d="M 150 610 L 180 620 L 170 650 L 140 640 Z" />
+    </a>
+
+    <!-- 熊本 43 -->
+    <a href="43/index.html">
+      <path id="pref43" d="M 200 660 L 230 670 L 220 700 L 190 690 Z" />
+    </a>
+
+    <!-- 大分 44 -->
+    <a href="44/index.html">
+      <path id="pref44" d="M 240 640 L 270 650 L 260 680 L 230 670 Z" />
+    </a>
+
+    <!-- 宮崎 45 -->
+    <a href="45/index.html">
+      <path id="pref45" d="M 230 690 L 260 700 L 250 730 L 220 720 Z" />
+    </a>
+
+    <!-- 鹿児島 46 -->
+    <a href="46/index.html">
+      <path id="pref46" d="M 200 730 L 230 740 L 220 780 L 190 770 Z" />
+    </a>
+
+    <!-- 沖縄 47 -->
+    <a href="47/index.html">
+      <path id="pref47" d="M 450 900 L 480 910 L 470 930 L 440 920 Z" />
+    </a>
+
+  </svg>
 </div>
 
 </body>
