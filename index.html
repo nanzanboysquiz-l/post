@@ -7,24 +7,48 @@
     body {
       font-family: system-ui, sans-serif;
       margin: 2rem;
+      background: #f7f7f7;
+      color: #333;
       line-height: 1.6;
     }
+
     h1 {
-      font-size: 1.8rem;
-      margin-bottom: 1rem;
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      color: #d14b4b; /* 郵便っぽい赤 */
+      letter-spacing: 0.05em;
     }
-    ul {
-      list-style: none;
-      padding: 0;
+
+    .list-container {
+      max-width: 700px;
+      margin: 0 auto;
+      display: grid;
+      gap: 1rem;
     }
-    li {
-      margin: 0.4rem 0;
+
+    .pref-card {
+      background: #fff;
+      padding: 1rem 1.2rem;
+      border-radius: 10px;
+      border: 1px solid #e3e3e3;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
-    a {
+
+    .pref-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .pref-card a {
       color: #0055aa;
       text-decoration: none;
+      font-size: 1.1rem;
+      font-weight: 600;
     }
-    a:hover {
+
+    .pref-card a:hover {
       text-decoration: underline;
     }
   </style>
@@ -33,10 +57,11 @@
 
 <h1>風景印を保有する郵便局マップ（都道府県別）</h1>
 
-<ul>
-  <li><a href="23/index.html">愛知県</a></li>
-  
-</ul>
+<div class="list-container">
+  <div class="pref-card">
+    <a href="23/index.html">愛知県</a>
+  </div>
+</div>
 
 </body>
 </html>
