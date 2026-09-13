@@ -360,5 +360,27 @@
         <script src="./layers/layers.js" type="text/javascript"></script> 
         <script src="./resources/Autolinker.min.js"></script>
         <script src="./resources/qgis2web.js"></script>
+        <script>
+            (function() {
+                window.addEventListener('load', function() {
+                    if (typeof map !== 'undefined' && map && map.forEachFeatureAtPixel) {
+                        // スマホ判定 (画面幅768px以下、またはモバイル端末)
+                        var isMobile = window.innerWidth <= 768 || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                        
+                        if (isMobile) {
+                            // OpenLayersの判定関数を安全にフックして、スマホ時のみ15pxの判定許容エリアを自動適用
+                            var originalForEachFeatureAtPixel = map.forEachFeatureAtPixel.bind(map);
+                            map.forEachFeatureAtPixel = function(pixel, callback, options) {
+                                options = options || {};
+                                if (options.hitTolerance === undefined || options.hitTolerance < 15) {
+                                    options.hitTolerance = 15; // スマホ時はタップ許容エリアを15pxに自動拡張
+                                }
+                                return originalForEachFeatureAtPixel(pixel, callback, options);
+                            };
+                        }
+                    }
+                });
+            })();
+        </script>
     </body>
 </html>
