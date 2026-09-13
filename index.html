@@ -8,6 +8,17 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <script>
+    (function() {
+      // 画面幅が768px未満、またはスマホ端末（UserAgent）の場合
+      var isMobile = window.innerWidth < 768 || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    
+      // 現在のURLに '/sp/' が含まれておらず、スマホと判定された場合はスマホ版へ転送
+      if (isMobile && !location.pathname.includes('/sp/')) {
+        location.href = './sp/index.html';
+      }
+    })();
+  </script>
   <style>
     :root {
       --primary-color: #d71920; /* 郵便局イメージレッド */
