@@ -120,7 +120,7 @@ export default function AddPostOffice() {
               type="text"
               value={municipality}
               onChange={(e) => setMunicipality(e.target.value)}
-              placeholder="例：京都市"
+              placeholder="例：札幌市"
               className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -131,7 +131,7 @@ export default function AddPostOffice() {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="例：京都中央郵便局"
+              placeholder="例：札幌中央郵便局"
               className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
@@ -188,7 +188,7 @@ export default function AddPostOffice() {
               value={memo}
               onChange={(e) => setMemo(e.target.value)}
               rows={3}
-              placeholder="例：窓口のみ対応、インクが薄め 等"
+              placeholder="例：○○で押印"
               className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
