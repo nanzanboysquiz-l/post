@@ -228,11 +228,11 @@ export default function Home() {
         <div className="flex items-center gap-4">
           {/* ここから追加したボタン */}
           <Link href="/add" className="text-sm bg-green-700 text-white py-1 px-3 rounded hover:bg-green-800 transition font-medium print:hidden">
-            新規登録
+            リストにない場合はこちらから登録
           </Link>
           {/* ここまで追加したボタン */}
           <Link href="/collectors" className="text-sm bg-red-800 text-white py-1 px-3 rounded hover:bg-red-900 transition font-medium">
-            収集者別リストを見る
+            収集者別リスト
           </Link>
           <span className="text-gray-600 font-medium border-l pl-4 ml-2">{userName} さん</span>
           <button
