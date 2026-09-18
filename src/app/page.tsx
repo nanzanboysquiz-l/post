@@ -29,7 +29,6 @@ export default function Home() {
 
   const [editingPostOffice, setEditingPostOffice] = useState<any | null>(null);
   
-  // ▼ 編集用のStateに「郵便局名(editName)」を追加
   const [editName, setEditName] = useState<string>("");
   const [editDate, setEditDate] = useState<string>("");
   const [editMemo, setEditMemo] = useState<string>("");
@@ -109,7 +108,7 @@ export default function Home() {
 
   const openEditModal = (po: any) => {
     setEditingPostOffice(po);
-    setEditName(po.name || ""); // 郵便局名をセット
+    setEditName(po.name || "");
     setEditDate(po.collected_date || "");
     setEditMemo(po.memo || "");
     setEditCollector(po.collector_name || "");
@@ -130,7 +129,7 @@ export default function Home() {
         po.id === editingPostOffice.id
           ? { 
               ...po, 
-              name: editName.trim(), // 名前も更新
+              name: editName.trim(),
               collected_date: editDate || null, 
               memo: editMemo,
               collector_name: editCollector || null
@@ -142,7 +141,7 @@ export default function Home() {
     const { error } = await supabase
       .from("post_offices")
       .update({
-        name: editName.trim(), // 名前も更新
+        name: editName.trim(),
         collected_date: editDate || null,
         memo: editMemo,
         collector_name: editCollector || null,
@@ -156,17 +155,14 @@ export default function Home() {
     setEditingPostOffice(null);
   };
 
-  // ▼ 郵便局の削除機能を追加
   const deletePostOffice = async () => {
     if (!editingPostOffice) return;
 
     const confirmed = window.confirm(`【警告】\n本当に「${editingPostOffice.name}」をデータベースから削除しますか？\n※この操作は取り消せません。`);
     if (!confirmed) return;
 
-    // 画面上から削除
     setPostOffices(postOffices.filter(po => po.id !== editingPostOffice.id));
 
-    // データベースから削除
     const { error } = await supabase
       .from("post_offices")
       .delete()
@@ -219,7 +215,7 @@ export default function Home() {
                 type="text"
                 value={userName}
                 onChange={(e) => setUserName(e.target.value)}
-                className="w-full border border-gray-300 p-3 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 p-3 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                 placeholder="例：地理研太郎"
               />
             </div>
@@ -294,7 +290,7 @@ export default function Home() {
           <select
             value={selectedPrefecture}
             onChange={(e) => setSelectedPrefecture(e.target.value)}
-            className="border border-gray-300 p-2 rounded w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+            className="border border-gray-300 p-2 rounded w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer text-gray-900 bg-white"
           >
             {PREFECTURES.map((pref) => (
               <option key={pref} value={pref}>{pref}</option>
@@ -310,7 +306,7 @@ export default function Home() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="例：札幌中央 西興部村"
-              className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
             />
           </div>
          <div className="flex-1">
@@ -318,7 +314,7 @@ export default function Home() {
             <select
               value={collectorFilter}
               onChange={(e) => setCollectorFilter(e.target.value)}
-              className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+              className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer text-gray-900 bg-white"
             >
               <option value="">すべての収集者</option>
               {uniqueCollectors.map((name) => (
@@ -331,7 +327,7 @@ export default function Home() {
             <select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value)}
-              className="border border-gray-300 p-2 rounded w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+              className="border border-gray-300 p-2 rounded w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer text-gray-900 bg-white"
             >
               <option value="all">すべて表示</option>
               <option value="collected">取得済のみ</option>
@@ -343,7 +339,7 @@ export default function Home() {
 
       <div className="bg-white p-6 rounded shadow print:shadow-none print:p-0">
         <div className="flex justify-between items-center mb-4 border-b pb-2">
-          <h2 className="text-lg font-bold">
+          <h2 className="text-lg font-bold text-gray-900">
             {selectedPrefecture}の郵便局 ({filteredPostOffices.length}局)
           </h2>
           <button
@@ -361,12 +357,12 @@ export default function Home() {
             {filteredPostOffices.map((po) => (
               <li key={po.id} className="flex justify-between items-center p-3 hover:bg-gray-50 border-b last:border-0 print:border-b-gray-300 print:break-inside-avoid">
                 <div className="flex flex-col">
-                  <span className="font-medium text-gray-800">{po.name}</span>
+                  <span className="font-medium text-gray-900">{po.name}</span>
                   {po.collector_name && (
                     <span className="text-xs text-gray-600 mt-1">収集者: {po.collector_name}</span>
                   )}
                   {po.memo && (
-                    <span className="text-xs text-gray-500 mt-1">メモ: {po.memo}</span>
+                    <span className="text-xs text-gray-600 mt-1">メモ: {po.memo}</span>
                   )}
                 </div>
                 <div className="flex items-center gap-2">
@@ -400,17 +396,16 @@ export default function Home() {
       {editingPostOffice && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 print:hidden">
           <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
-            <h3 className="text-lg font-bold mb-4 border-b pb-2">郵便局情報の編集</h3>
+            <h3 className="text-lg font-bold mb-4 border-b pb-2 text-gray-900">郵便局情報の編集</h3>
             
             <div className="space-y-4">
-              {/* ▼ 郵便局名を変更できる入力欄を追加 */}
               <div>
                 <label className="block text-gray-700 text-sm font-bold mb-2">郵便局名</label>
                 <input
                   type="text"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold"
+                  className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold text-gray-900 bg-white"
                 />
               </div>
 
@@ -420,7 +415,7 @@ export default function Home() {
                   type="date"
                   value={editDate}
                   onChange={(e) => setEditDate(e.target.value)}
-                  className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                 />
               </div>
               
@@ -430,7 +425,7 @@ export default function Home() {
                   type="text"
                   value={editCollector}
                   onChange={(e) => setEditCollector(e.target.value)}
-                  className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                 />
               </div>
 
@@ -440,13 +435,12 @@ export default function Home() {
                   value={editMemo}
                   onChange={(e) => setEditMemo(e.target.value)}
                   rows={3}
-                  className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                 />
               </div>
             </div>
 
             <div className="flex justify-between items-center mt-6 pt-4 border-t">
-              {/* ▼ 左側に削除ボタンを配置 */}
               <button
                 onClick={deletePostOffice}
                 className="px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded transition-colors"
