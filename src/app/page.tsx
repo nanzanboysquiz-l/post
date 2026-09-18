@@ -28,6 +28,9 @@ export default function Home() {
   const [collectorFilter, setCollectorFilter] = useState<string>("");
 
   const [editingPostOffice, setEditingPostOffice] = useState<any | null>(null);
+  
+  // ▼ 編集用のStateに「郵便局名(editName)」を追加
+  const [editName, setEditName] = useState<string>("");
   const [editDate, setEditDate] = useState<string>("");
   const [editMemo, setEditMemo] = useState<string>("");
   const [editCollector, setEditCollector] = useState<string>("");
@@ -63,7 +66,6 @@ export default function Home() {
     fetchPostOffices();
   }, [selectedPrefecture, isLoggedIn]);
 
-  // ▼ ステータス変更時にワンクッション（確認）を挟むように変更
   const toggleStatus = async (id: string, currentStatus: boolean, poName: string) => {
     const newStatus = !currentStatus;
     const actionLabel = newStatus ? "「取得済」に登録" : "「未取得」に変更";
@@ -107,16 +109,20 @@ export default function Home() {
 
   const openEditModal = (po: any) => {
     setEditingPostOffice(po);
+    setEditName(po.name || ""); // 郵便局名をセット
     setEditDate(po.collected_date || "");
     setEditMemo(po.memo || "");
     setEditCollector(po.collector_name || "");
   };
 
-  // ▼ 編集内容の保存時にもワンクッション（確認）を挟むように変更
   const saveEdit = async () => {
     if (!editingPostOffice) return;
+    if (editName.trim() === "") {
+      alert("郵便局名を入力してください。");
+      return;
+    }
 
-    const confirmed = window.confirm(`【確認】\n「${editingPostOffice.name}」の編集内容を保存しますか？`);
+    const confirmed = window.confirm(`【確認】\n「${editName}」として編集内容を保存しますか？`);
     if (!confirmed) return;
 
     setPostOffices(
@@ -124,6 +130,7 @@ export default function Home() {
         po.id === editingPostOffice.id
           ? { 
               ...po, 
+              name: editName.trim(), // 名前も更新
               collected_date: editDate || null, 
               memo: editMemo,
               collector_name: editCollector || null
@@ -135,6 +142,7 @@ export default function Home() {
     const { error } = await supabase
       .from("post_offices")
       .update({
+        name: editName.trim(), // 名前も更新
         collected_date: editDate || null,
         memo: editMemo,
         collector_name: editCollector || null,
@@ -143,6 +151,29 @@ export default function Home() {
 
     if (error) {
       alert("更新に失敗しました: " + error.message);
+    }
+
+    setEditingPostOffice(null);
+  };
+
+  // ▼ 郵便局の削除機能を追加
+  const deletePostOffice = async () => {
+    if (!editingPostOffice) return;
+
+    const confirmed = window.confirm(`【警告】\n本当に「${editingPostOffice.name}」をデータベースから削除しますか？\n※この操作は取り消せません。`);
+    if (!confirmed) return;
+
+    // 画面上から削除
+    setPostOffices(postOffices.filter(po => po.id !== editingPostOffice.id));
+
+    // データベースから削除
+    const { error } = await supabase
+      .from("post_offices")
+      .delete()
+      .eq("id", editingPostOffice.id);
+
+    if (error) {
+      alert("削除に失敗しました: " + error.message);
     }
 
     setEditingPostOffice(null);
@@ -369,9 +400,20 @@ export default function Home() {
       {editingPostOffice && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 print:hidden">
           <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
-            <h3 className="text-lg font-bold mb-4">{editingPostOffice.name} の編集</h3>
+            <h3 className="text-lg font-bold mb-4 border-b pb-2">郵便局情報の編集</h3>
             
             <div className="space-y-4">
+              {/* ▼ 郵便局名を変更できる入力欄を追加 */}
+              <div>
+                <label className="block text-gray-700 text-sm font-bold mb-2">郵便局名</label>
+                <input
+                  type="text"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold"
+                />
+              </div>
+
               <div>
                 <label className="block text-gray-700 text-sm font-bold mb-2">取得日</label>
                 <input
@@ -403,19 +445,29 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="flex justify-end gap-3 mt-6">
+            <div className="flex justify-between items-center mt-6 pt-4 border-t">
+              {/* ▼ 左側に削除ボタンを配置 */}
               <button
-                onClick={() => setEditingPostOffice(null)}
-                className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition-colors"
+                onClick={deletePostOffice}
+                className="px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded transition-colors"
               >
-                キャンセル
+                削除する
               </button>
-              <button
-                onClick={saveEdit}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-              >
-                保存する
-              </button>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setEditingPostOffice(null)}
+                  className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition-colors"
+                >
+                  キャンセル
+                </button>
+                <button
+                  onClick={saveEdit}
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                >
+                  保存する
+                </button>
+              </div>
             </div>
           </div>
         </div>
