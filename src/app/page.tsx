@@ -63,8 +63,14 @@ export default function Home() {
     fetchPostOffices();
   }, [selectedPrefecture, isLoggedIn]);
 
-  const toggleStatus = async (id: string, currentStatus: boolean) => {
+  // ▼ ステータス変更時にワンクッション（確認）を挟むように変更
+  const toggleStatus = async (id: string, currentStatus: boolean, poName: string) => {
     const newStatus = !currentStatus;
+    const actionLabel = newStatus ? "「取得済」に登録" : "「未取得」に変更";
+    
+    const confirmed = window.confirm(`【確認】\n「${poName}」を ${actionLabel} しますか？`);
+    if (!confirmed) return;
+
     const today = new Date().toLocaleDateString("ja-JP", {
       year: "numeric",
       month: "2-digit",
@@ -106,8 +112,12 @@ export default function Home() {
     setEditCollector(po.collector_name || "");
   };
 
+  // ▼ 編集内容の保存時にもワンクッション（確認）を挟むように変更
   const saveEdit = async () => {
     if (!editingPostOffice) return;
+
+    const confirmed = window.confirm(`【確認】\n「${editingPostOffice.name}」の編集内容を保存しますか？`);
+    if (!confirmed) return;
 
     setPostOffices(
       postOffices.map((po) =>
@@ -226,11 +236,9 @@ export default function Home() {
           <h1 className="text-xl font-bold text-gray-800">Rits地理研風景印データベース</h1>
         </div>
         <div className="flex items-center gap-4">
-          {/* ここから追加したボタン */}
           <Link href="/add" className="text-sm bg-green-700 text-white py-1 px-3 rounded hover:bg-green-800 transition font-medium print:hidden">
             リストにない場合はこちらから登録
           </Link>
-          {/* ここまで追加したボタン */}
           <Link href="/collectors" className="text-sm bg-red-800 text-white py-1 px-3 rounded hover:bg-red-900 transition font-medium">
             収集者別リスト
           </Link>
@@ -332,7 +340,7 @@ export default function Home() {
                 </div>
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => toggleStatus(po.id, po.is_collected)}
+                    onClick={() => toggleStatus(po.id, po.is_collected, po.name)}
                     className={`text-xs px-3 py-1 rounded-full border transition-colors ${
                       po.is_collected 
                         ? "bg-green-100 text-green-800 border-green-300 hover:bg-green-200" 
