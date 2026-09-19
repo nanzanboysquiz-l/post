@@ -80,7 +80,7 @@ export default function AddPostOffice() {
     return (
       <main className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
         <div className="bg-white p-8 rounded-lg shadow-md text-center">
-          <p className="mb-4">名前が登録されていません。</p>
+          <p className="mb-4 text-black">名前が登録されていません。</p>
           <Link href="/" className="text-blue-600 underline">メインページに戻る</Link>
         </div>
       </main>
@@ -102,10 +102,11 @@ export default function AddPostOffice() {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-gray-700 font-bold mb-2">都道府県 <span className="text-red-500">*</span></label>
+            {/* ▼ iPad文字薄れ対策: text-black bg-white opacity-100 を追加 */}
             <select
               value={prefecture}
               onChange={(e) => setPrefecture(e.target.value)}
-              className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white opacity-100"
               required
             >
               {PREFECTURES.map((pref) => (
@@ -116,23 +117,25 @@ export default function AddPostOffice() {
 
           <div>
             <label className="block text-gray-700 font-bold mb-2">市区町村</label>
+            {/* ▼ iPad文字薄れ対策を追加 */}
             <input
               type="text"
               value={municipality}
               onChange={(e) => setMunicipality(e.target.value)}
               placeholder="例：札幌市"
-              className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white opacity-100 placeholder:text-gray-500 placeholder:opacity-100"
             />
           </div>
 
           <div>
             <label className="block text-gray-700 font-bold mb-2">郵便局名 <span className="text-red-500">*</span></label>
+            {/* ▼ iPad文字薄れ対策を追加 */}
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="例：札幌中央郵便局"
-              className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white opacity-100 placeholder:text-gray-500 placeholder:opacity-100"
               required
             />
           </div>
@@ -152,7 +155,7 @@ export default function AddPostOffice() {
                     setCollectedDate(today);
                   }
                 }}
-                className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 opacity-100"
               />
               <span className="text-gray-800 font-bold">すでに風景印を取得済みとして登録する</span>
             </label>
@@ -162,21 +165,23 @@ export default function AddPostOffice() {
             <div className="bg-gray-50 p-4 rounded border space-y-4">
               <div>
                 <label className="block text-gray-700 font-bold mb-2">取得日</label>
+                {/* ▼ iPad文字薄れ対策を追加 */}
                 <input
                   type="date"
                   value={collectedDate}
                   onChange={(e) => setCollectedDate(e.target.value)}
-                  className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white opacity-100"
                 />
               </div>
               
               <div>
                 <label className="block text-gray-700 font-bold mb-2">収集者</label>
+                {/* ▼ iPad文字薄れ対策を追加 */}
                 <input
                   type="text"
                   value={collectorName}
                   onChange={(e) => setCollectorName(e.target.value)}
-                  className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white opacity-100"
                 />
               </div>
             </div>
@@ -184,12 +189,13 @@ export default function AddPostOffice() {
 
           <div>
             <label className="block text-gray-700 font-bold mb-2">メモ</label>
+            {/* ▼ iPad文字薄れ対策を追加 */}
             <textarea
               value={memo}
               onChange={(e) => setMemo(e.target.value)}
               rows={3}
-              placeholder="例：○○で押印"
-              className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="例：ポストカードで押印"
+              className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white opacity-100 placeholder:text-gray-500 placeholder:opacity-100"
             />
           </div>
 

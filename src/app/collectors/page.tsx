@@ -11,7 +11,7 @@ const PREFECTURES = [
   "静岡県", "愛知県", "三重県", "滋賀県", "京都府", "大阪府", "兵庫県",
   "奈良県", "和歌山県", "鳥取県", "島根県", "岡山県", "広島県", "山口県",
   "徳島県", "香川県", "愛媛県", "高知県", "福岡県", "佐賀県", "長崎県",
-  "熊本県", "大分県", "宮崎県", "鹿児島県", "沖縄県"
+  "熊本県", "大分県", "宮崎県", "鹿児島県", "沖縄県", "海外"
 ];
 
 export default function CollectorsPage() {
@@ -125,10 +125,11 @@ export default function CollectorsPage() {
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
               <label className="block text-gray-700 font-medium mb-2">収集者の名前を選択</label>
+              {/* ▼ iPad文字薄れ対策: text-black bg-white opacity-100 を追加 */}
               <select
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer text-black bg-white opacity-100"
               >
                 <option value="">選択してください</option>
                 {uniqueCollectors.map((name) => (
@@ -151,10 +152,11 @@ export default function CollectorsPage() {
         {hasSearched && !isFetching && (
           <div className="mt-4 pt-4 border-t border-gray-200">
             <label className="block text-gray-700 font-medium mb-2 text-sm">都道府県で絞り込む</label>
+            {/* ▼ iPad文字薄れ対策: text-black bg-white opacity-100 を追加 */}
             <select
               value={filterPrefecture}
               onChange={(e) => setFilterPrefecture(e.target.value)}
-              className="border border-gray-300 p-2 rounded w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+              className="border border-gray-300 p-2 rounded w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer text-black bg-white opacity-100"
             >
               <option value="all">すべての都道府県</option>
               {PREFECTURES.map((pref) => (
@@ -168,7 +170,7 @@ export default function CollectorsPage() {
       {hasSearched && (
         <div className="bg-white p-6 rounded shadow print:shadow-none print:p-0">
           <div className="flex justify-between items-center mb-4 border-b pb-2">
-            <h2 className="text-lg font-bold">
+            <h2 className="text-lg font-bold text-gray-900">
               検索結果 ({filteredPostOffices.length}局)
             </h2>
             {filteredPostOffices.length > 0 && (
@@ -188,7 +190,7 @@ export default function CollectorsPage() {
               {filteredPostOffices.map((po) => (
                 <li key={po.id} className="flex flex-col sm:flex-row justify-between sm:items-center p-3 hover:bg-gray-50 border-b last:border-0 print:border-b-gray-300 print:break-inside-avoid">
                   <div className="flex flex-col mb-2 sm:mb-0">
-                    <span className="font-medium text-gray-800">
+                    <span className="font-medium text-gray-900">
                       <span className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded mr-2">{po.prefecture}</span>
                       {po.name}
                     </span>
