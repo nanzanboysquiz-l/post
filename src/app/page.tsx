@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "../supabase";
 import Link from "next/link";
 
@@ -25,7 +25,8 @@ export default function Home() {
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [filterType, setFilterType] = useState<string>("all");
-  const [collectorFilter, setCollectorFilter] = useState<string>("");
+  // ▼ 収集者フィルターの代わりに市区町村フィルターのStateを追加
+  const [selectedMunicipality, setSelectedMunicipality] = useState<string>("all");
 
   const [editingPostOffice, setEditingPostOffice] = useState<any | null>(null);
   
@@ -63,7 +64,17 @@ export default function Home() {
     };
 
     fetchPostOffices();
+    // 都道府県を変更したら市区町村の絞り込みをリセットする
+    setSelectedMunicipality("all");
   }, [selectedPrefecture, isLoggedIn]);
+
+  // ▼ 取得した郵便局一覧から市区町村の一覧を重複排除してソート
+  const uniqueMunicipalities = useMemo(() => {
+    const list = postOffices
+      .map((po) => po.municipality)
+      .filter((muni): muni is string => Boolean(muni && muni.trim() !== ""));
+    return Array.from(new Set(list)).sort((a, b) => a.localeCompare(b, "ja"));
+  }, [postOffices]);
 
   const toggleStatus = async (id: string, currentStatus: boolean, poName: string) => {
     const newStatus = !currentStatus;
@@ -215,7 +226,7 @@ export default function Home() {
                 type="text"
                 value={userName}
                 onChange={(e) => setUserName(e.target.value)}
-                className="w-full border border-gray-300 p-3 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                className="w-full border border-gray-300 p-3 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white opacity-100 placeholder:text-gray-500 placeholder:opacity-100"
                 placeholder="例：地理研太郎"
               />
             </div>
@@ -231,10 +242,6 @@ export default function Home() {
     );
   }
 
-  const uniqueCollectors = Array.from(
-    new Set(postOffices.map((po) => po.collector_name).filter(Boolean))
-  ).sort();
-
   const filteredPostOffices = postOffices.filter((po) => {
     if (searchQuery) {
       const matchName = po.name.includes(searchQuery);
@@ -243,13 +250,14 @@ export default function Home() {
         return false;
       }
     }
+    // ▼ 市区町村フィルターのロジック
+    if (selectedMunicipality !== "all" && po.municipality !== selectedMunicipality) {
+      return false;
+    }
     if (filterType === "collected" && !po.is_collected) {
       return false;
     }
     if (filterType === "uncollected" && po.is_collected) {
-      return false;
-    }
-    if (collectorFilter && (!po.collector_name || !po.collector_name.includes(collectorFilter))) {
       return false;
     }
     return true;
@@ -280,7 +288,10 @@ export default function Home() {
       </header>
 
       <div className="hidden print:block mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Rits地理研風景印データベース - {selectedPrefecture}</h1>
+        <h1 className="text-2xl font-bold text-gray-800">
+          Rits地理研風景印データベース - {selectedPrefecture}
+          {selectedMunicipality !== "all" ? ` (${selectedMunicipality})` : ""}
+        </h1>
         <p className="text-gray-600">出力日: {new Date().toLocaleDateString("ja-JP")}</p>
       </div>
 
@@ -290,7 +301,7 @@ export default function Home() {
           <select
             value={selectedPrefecture}
             onChange={(e) => setSelectedPrefecture(e.target.value)}
-            className="border border-gray-300 p-2 rounded w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer text-gray-900 bg-white"
+            className="border border-gray-300 p-2 rounded w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer text-black bg-white opacity-100 font-medium"
           >
             {PREFECTURES.map((pref) => (
               <option key={pref} value={pref}>{pref}</option>
@@ -306,28 +317,31 @@ export default function Home() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="例：札幌中央 西興部村"
-              className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+              className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white opacity-100 placeholder:text-gray-500 placeholder:opacity-100"
             />
           </div>
-         <div className="flex-1">
-            <label className="block text-gray-700 font-medium mb-2 text-sm">収集者で検索</label>
+          
+          {/* ▼ 収集者検索を削除し、市区町村の絞り込みに変更 */}
+          <div className="flex-1">
+            <label className="block text-gray-700 font-medium mb-2 text-sm">市区町村で絞り込む</label>
             <select
-              value={collectorFilter}
-              onChange={(e) => setCollectorFilter(e.target.value)}
-              className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer text-gray-900 bg-white"
+              value={selectedMunicipality}
+              onChange={(e) => setSelectedMunicipality(e.target.value)}
+              className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer text-black bg-white opacity-100 font-medium"
             >
-              <option value="">すべての収集者</option>
-              {uniqueCollectors.map((name) => (
-                <option key={name} value={name}>{name}</option>
+              <option value="all">すべての市区町村</option>
+              {uniqueMunicipalities.map((muni) => (
+                <option key={muni} value={muni}>{muni}</option>
               ))}
             </select>
           </div>
+
           <div>
             <label className="block text-gray-700 font-medium mb-2 text-sm">収集状況</label>
             <select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value)}
-              className="border border-gray-300 p-2 rounded w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer text-gray-900 bg-white"
+              className="border border-gray-300 p-2 rounded w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer text-black bg-white opacity-100 font-medium"
             >
               <option value="all">すべて表示</option>
               <option value="collected">取得済のみ</option>
@@ -357,7 +371,15 @@ export default function Home() {
             {filteredPostOffices.map((po) => (
               <li key={po.id} className="flex justify-between items-center p-3 hover:bg-gray-50 border-b last:border-0 print:border-b-gray-300 print:break-inside-avoid">
                 <div className="flex flex-col">
-                  <span className="font-medium text-gray-900">{po.name}</span>
+                  {/* ▼ 郵便局名と一緒に市区町村名も表示 */}
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium text-gray-900">{po.name}</span>
+                    {po.municipality && (
+                      <span className="text-xs bg-gray-200 text-gray-700 px-2 py-0.5 rounded">
+                        {po.municipality}
+                      </span>
+                    )}
+                  </div>
                   {po.collector_name && (
                     <span className="text-xs text-gray-600 mt-1">収集者: {po.collector_name}</span>
                   )}
@@ -405,7 +427,7 @@ export default function Home() {
                   type="text"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold text-gray-900 bg-white"
+                  className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold text-black bg-white opacity-100"
                 />
               </div>
 
@@ -415,7 +437,7 @@ export default function Home() {
                   type="date"
                   value={editDate}
                   onChange={(e) => setEditDate(e.target.value)}
-                  className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                  className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white opacity-100"
                 />
               </div>
               
@@ -425,7 +447,7 @@ export default function Home() {
                   type="text"
                   value={editCollector}
                   onChange={(e) => setEditCollector(e.target.value)}
-                  className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                  className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white opacity-100"
                 />
               </div>
 
@@ -435,7 +457,7 @@ export default function Home() {
                   value={editMemo}
                   onChange={(e) => setEditMemo(e.target.value)}
                   rows={3}
-                  className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                  className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white opacity-100 placeholder:text-gray-500 placeholder:opacity-100"
                 />
               </div>
             </div>
