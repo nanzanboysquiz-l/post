@@ -25,8 +25,14 @@ export default function CollectorsPage() {
   const [hasSearched, setHasSearched] = useState<boolean>(false);
 
   const [filterPrefecture, setFilterPrefecture] = useState<string>("all");
-  // 収集者リストを保存するための状態を追加
   const [uniqueCollectors, setUniqueCollectors] = useState<string[]>([]);
+
+  // ▼ 編集用のStateを追加
+  const [editingPostOffice, setEditingPostOffice] = useState<any | null>(null);
+  const [editName, setEditName] = useState<string>("");
+  const [editDate, setEditDate] = useState<string>("");
+  const [editMemo, setEditMemo] = useState<string>("");
+  const [editCollector, setEditCollector] = useState<string>("");
 
   useEffect(() => {
     const savedName = localStorage.getItem("fukeiin_user");
@@ -35,7 +41,6 @@ export default function CollectorsPage() {
       setIsLoggedIn(true);
     }
     
-    // データベースから収集者の名前をすべて取得して重複をなくす処理
     const fetchCollectors = async () => {
       const { data, error } = await supabase
         .from("post_offices")
@@ -59,7 +64,6 @@ export default function CollectorsPage() {
     setIsFetching(true);
     setHasSearched(true);
     
-    // プルダウンでの選択になったため、あいまい検索(ilike)から完全一致検索(eq)に変更
     const { data, error } = await supabase
       .from("post_offices")
       .select("*")
@@ -75,6 +79,78 @@ export default function CollectorsPage() {
     setIsFetching(false);
   };
 
+  // ▼ 編集モーダルを開く処理
+  const openEditModal = (po: any) => {
+    setEditingPostOffice(po);
+    setEditName(po.name || "");
+    setEditDate(po.collected_date || "");
+    setEditMemo(po.memo || "");
+    setEditCollector(po.collector_name || "");
+  };
+
+  // ▼ 編集を保存する処理
+  const saveEdit = async () => {
+    if (!editingPostOffice) return;
+    if (editName.trim() === "") {
+      alert("郵便局名を入力してください。");
+      return;
+    }
+
+    const confirmed = window.confirm(`【確認】\n「${editName}」として編集内容を保存しますか？`);
+    if (!confirmed) return;
+
+    setPostOffices(
+      postOffices.map((po) =>
+        po.id === editingPostOffice.id
+          ? { 
+              ...po, 
+              name: editName.trim(),
+              collected_date: editDate || null, 
+              memo: editMemo,
+              collector_name: editCollector || null
+            }
+          : po
+      )
+    );
+
+    const { error } = await supabase
+      .from("post_offices")
+      .update({
+        name: editName.trim(),
+        collected_date: editDate || null,
+        memo: editMemo,
+        collector_name: editCollector || null,
+      })
+      .eq("id", editingPostOffice.id);
+
+    if (error) {
+      alert("更新に失敗しました: " + error.message);
+    }
+
+    setEditingPostOffice(null);
+  };
+
+  // ▼ 郵便局を削除する処理
+  const deletePostOffice = async () => {
+    if (!editingPostOffice) return;
+
+    const confirmed = window.confirm(`【警告】\n本当に「${editingPostOffice.name}」をデータベースから削除しますか？\n※この操作は取り消せません。`);
+    if (!confirmed) return;
+
+    setPostOffices(postOffices.filter(po => po.id !== editingPostOffice.id));
+
+    const { error } = await supabase
+      .from("post_offices")
+      .delete()
+      .eq("id", editingPostOffice.id);
+
+    if (error) {
+      alert("削除に失敗しました: " + error.message);
+    }
+
+    setEditingPostOffice(null);
+  };
+
   const handlePrint = () => {
     window.print();
   };
@@ -87,7 +163,7 @@ export default function CollectorsPage() {
     return (
       <main className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
         <div className="bg-white p-8 rounded-lg shadow-md text-center">
-          <p className="mb-4">名前が登録されていません。</p>
+          <p className="mb-4 text-black">名前が登録されていません。</p>
           <Link href="/" className="text-blue-600 underline">メインページに戻る</Link>
         </div>
       </main>
@@ -125,7 +201,6 @@ export default function CollectorsPage() {
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
               <label className="block text-gray-700 font-medium mb-2">収集者の名前を選択</label>
-              {/* ▼ iPad文字薄れ対策: text-black bg-white opacity-100 を追加 */}
               <select
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -152,7 +227,6 @@ export default function CollectorsPage() {
         {hasSearched && !isFetching && (
           <div className="mt-4 pt-4 border-t border-gray-200">
             <label className="block text-gray-700 font-medium mb-2 text-sm">都道府県で絞り込む</label>
-            {/* ▼ iPad文字薄れ対策: text-black bg-white opacity-100 を追加 */}
             <select
               value={filterPrefecture}
               onChange={(e) => setFilterPrefecture(e.target.value)}
@@ -198,10 +272,17 @@ export default function CollectorsPage() {
                       <span className="text-xs text-gray-500 mt-1">メモ: {po.memo}</span>
                     )}
                   </div>
-                  <div className="flex items-center">
+                  {/* ▼ ここに「編集ボタン」を追加 */}
+                  <div className="flex items-center gap-2">
                     <span className="text-xs bg-green-100 text-green-800 border border-green-300 px-3 py-1 rounded-full">
                       取得済 ({po.collected_date})
                     </span>
+                    <button
+                      onClick={() => openEditModal(po)}
+                      className="text-xs bg-blue-50 text-blue-600 px-3 py-1 rounded border border-blue-200 hover:bg-blue-100 transition-colors print:hidden"
+                    >
+                      編集
+                    </button>
                   </div>
                 </li>
               ))}
@@ -211,6 +292,81 @@ export default function CollectorsPage() {
           {filteredPostOffices.length === 0 && !isFetching && (
             <p className="text-gray-500 mt-4">該当する収集データはありません。</p>
           )}
+        </div>
+      )}
+
+      {/* ▼ 編集用モーダル UI */}
+      {editingPostOffice && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 print:hidden">
+          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+            <h3 className="text-lg font-bold mb-4 border-b pb-2 text-gray-900">郵便局情報の編集</h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-gray-700 text-sm font-bold mb-2">郵便局名</label>
+                <input
+                  type="text"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold text-black bg-white opacity-100"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 text-sm font-bold mb-2">取得日</label>
+                <input
+                  type="date"
+                  value={editDate}
+                  onChange={(e) => setEditDate(e.target.value)}
+                  className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white opacity-100"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-gray-700 text-sm font-bold mb-2">収集者</label>
+                <input
+                  type="text"
+                  value={editCollector}
+                  onChange={(e) => setEditCollector(e.target.value)}
+                  className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white opacity-100"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 text-sm font-bold mb-2">メモ</label>
+                <textarea
+                  value={editMemo}
+                  onChange={(e) => setEditMemo(e.target.value)}
+                  rows={3}
+                  className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white opacity-100 placeholder:text-gray-500 placeholder:opacity-100"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center mt-6 pt-4 border-t">
+              <button
+                onClick={deletePostOffice}
+                className="px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded transition-colors"
+              >
+                削除する
+              </button>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setEditingPostOffice(null)}
+                  className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition-colors"
+                >
+                  キャンセル
+                </button>
+                <button
+                  onClick={saveEdit}
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                >
+                  保存する
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </main>
