@@ -4,7 +4,7 @@ var map = new ol.Map({
     renderer: 'canvas',
     layers: layersList,
     view: new ol.View({
-        constrainResolution: true,
+        constrainResolution: false,
         maxZoom: 28,
         minZoom: 1,
         
@@ -12,7 +12,7 @@ var map = new ol.Map({
 });
 
 //initial view - epsg:3857 coordinates if not "Match project CRS"
-map.getView().fit([15242242.490302, 4137585.451726, 15312168.853550, 4197609.199558], map.getSize());
+map.getView().fit([15231912.378382, 4181004.483407, 15248169.990626, 4191775.346360], map.getSize());
 
 //change cursor
 function pointerOnFeature(evt) {

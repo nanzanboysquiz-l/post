@@ -766,7 +766,7 @@ function fnc_project_color(values, context) {
 
 
 
-function exp_P3013_23virtual_1rule0_eval_expression(context) {
+function exp_P3013_23_1rule0_eval_expression(context) {
     // 
 
     var feature = context.feature;
@@ -779,7 +779,20 @@ function exp_P3013_23virtual_1rule0_eval_expression(context) {
 }
 
 
-function exp_P3013_23virtual_1rule1_eval_expression(context) {
+function exp_P3013_23_1rule1_eval_expression(context) {
+    // "風景印_23(愛知県)_取得" IS NULL AND "風景印_23(愛知県)_自治体" IS NOT NULL
+
+    var feature = context.feature;
+    
+    if (feature.properties) {
+        return ((feature.get('風景印_23(愛知県)_取得')  === null) && (feature.get('風景印_23(愛知県)_自治体')  !== null));
+    } else {
+        return ((feature.get('風景印_23(愛知県)_取得')  === null) && (feature.get('風景印_23(愛知県)_自治体')  !== null));
+    }
+}
+
+
+function exp_P3013_23_1rule2_eval_expression(context) {
     // "風景印_23(愛知県)_自治体" IS NOT NULL AND "風景印_23(愛知県)_取得" IS NOT NULL
 
     var feature = context.feature;
@@ -788,18 +801,5 @@ function exp_P3013_23virtual_1rule1_eval_expression(context) {
         return ((feature.get('風景印_23(愛知県)_自治体')  !== null) && (feature.get('風景印_23(愛知県)_取得')  !== null));
     } else {
         return ((feature.get('風景印_23(愛知県)_自治体')  !== null) && (feature.get('風景印_23(愛知県)_取得')  !== null));
-    }
-}
-
-
-function exp_P3013_23virtual_1rule2_eval_expression(context) {
-    // "風景印_23(愛知県)_取得" IS NOT 1 AND "風景印_23(愛知県)_自治体" IS NOT NULL
-
-    var feature = context.feature;
-    
-    if (feature.properties) {
-        return ((feature.get('風景印_23(愛知県)_取得')  !== 1) && (feature.get('風景印_23(愛知県)_自治体')  !== null));
-    } else {
-        return ((feature.get('風景印_23(愛知県)_取得')  !== 1) && (feature.get('風景印_23(愛知県)_自治体')  !== null));
     }
 }
