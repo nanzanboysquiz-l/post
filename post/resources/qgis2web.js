@@ -12,7 +12,7 @@ var map = new ol.Map({
 });
 
 //initial view - epsg:3857 coordinates if not "Match project CRS"
-map.getView().fit([15106000.101201, 4166485.293785, 15111980.707952, 4169853.903067], map.getSize());
+map.getView().fit([15185393.740129, 4097387.840451, 15400695.583143, 4218657.774591], map.getSize());
 
 //change cursor
 function pointerOnFeature(evt) {
@@ -534,18 +534,43 @@ var bottomAttribution = new ol.control.Attribution({
 });
 map.addControl(bottomAttribution);
 
-map.once('rendercomplete', function() {
-  var bottomAttributionUl = bottomAttribution.element.querySelector('ul');
-  if (bottomAttributionUl) {
-    var layerAttrs = Array.from(bottomAttributionUl.querySelectorAll('li'))
-      .map(function(li) { return li.innerHTML.trim(); }).filter(Boolean);
+map.once('rendercomplete', function () {
+
+    var bottomAttributionUl =
+        bottomAttribution.element.querySelector('ul');
+
+    if (!bottomAttributionUl) {
+        return;
+    }
+
+    var layerAttrs = Array
+        .from(
+            bottomAttributionUl.querySelectorAll('li')
+        )
+        .map(function(li){
+            return li.innerHTML.trim();
+        })
+        .filter(Boolean);
+
     var attribHtml = `
-    <a href="https://github.com/qgis2web/qgis2web">qgis2web</a> &middot;
-    <a href="https://openlayers.org/">OpenLayers</a> &middot;
-    <a href="https://qgis.org/">QGIS</a>`;
-    if (layerAttrs.length > 0) { attribHtml += ' &nbsp;|&nbsp; ' + layerAttrs.join(', '); }
-    bottomAttributionUl.innerHTML = '<li>' + attribHtml + '</li>';
-  }
+<a href="https://github.com/qgis2web/qgis2web">qgis2web</a> &middot;
+<a href="https://openlayers.org/">OpenLayers</a> &middot;
+<a href="https://qgis.org/">QGIS</a> &middot;
+<a href="https://maps.gsi.go.jp/">地理院地図</a>
+`;
+
+    if (layerAttrs.length > 0) {
+
+        attribHtml +=
+            ' &nbsp;|&nbsp; ' +
+            layerAttrs.join(', ');
+
+    }
+
+    bottomAttributionUl.innerHTML =
+        '<li>' +
+        attribHtml +
+        '</li>';
 });
 
 

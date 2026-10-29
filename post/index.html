@@ -95,8 +95,8 @@ body {
      <h1>
       全国風景印マップ
      </h1>
-     <p>
-      全国の風景印配置郵便局を検索できます
+     <p id="updateInfo">
+      データ更新日時を取得中...
      </p>
     </div>
     <div class="search-group">
@@ -746,20 +746,74 @@ const PREFECTURES = {
 
 };
 
-const prefectureSelect = document.getElementById("prefectureSelect");
-  prefectureSelect.addEventListener("change", function () {
-      const pref = this.value;
-      const center = PREFECTURES[pref];
-      if (!pref || !center || typeof map === "undefined" || !map.getView) {
-          return;
-      }
-      map.getView().animate({
-          center: ol.proj.fromLonLat(center),
-          zoom: 10,
-          duration: 800
-      });
-  });
+const prefectureSelect =
+    document.getElementById(
+        "prefectureSelect"
+    );
 
+prefectureSelect.addEventListener(
+    "change",
+    function () {
+
+        const pref =
+            this.value;
+
+        const center =
+            PREFECTURES[pref];
+
+        if (
+            !pref ||
+            !center ||
+            typeof map ===
+                "undefined" ||
+            !map.getView
+        ) {
+            return;
+        }
+
+        map.getView().animate({
+
+            center:
+                ol.proj.fromLonLat(
+                    center
+                ),
+
+            zoom: 10,
+
+            duration: 800
+
+        });
+
+    }
+);
+
+// ---------------------
+// 更新日時表示
+// ---------------------
+
+fetch("./last_update.txt")
+.then(r => r.text())
+.then(text => {
+
+    document
+        .getElementById(
+            "updateInfo"
+        )
+        .textContent =
+        "最終更新: " +
+        text;
+
+})
+.catch(() => {
+
+    document
+        .getElementById(
+            "updateInfo"
+        )
+        .textContent =
+        "更新日時取得失敗";
+
+});
 </script>
  </body>
 </html>
