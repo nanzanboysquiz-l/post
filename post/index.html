@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="ja">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="IE=edge" http-equiv="X-UA-Compatible"/>
+  <meta content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width" name="viewport"/>
+  <meta content="yes" name="mobile-web-app-capable"/>
+  <meta content="yes" name="apple-mobile-web-app-capable"/>
+  <link href="./resources/ol.css" rel="stylesheet"/>
+  <link href="resources/fontawesome-all.min.css" rel="stylesheet"/>
+  <link href="resources/photon-geocoder-autocomplete.min.css" rel="stylesheet"/>
+  <link href="./resources/ol-layerswitcher.css" rel="stylesheet"/>
+  <link href="./resources/qgis2web.css" rel="stylesheet"/>
+  <style>
+   html, body {
+            background-color: #ffffff;
+        }
+        .ol-control > * {
+            background-color: #f8f8f8!important;
+            color: #444444!important;
+            border-radius: 0px;
+        }
+        .ol-attribution a, .gcd-gl-input::placeholder, .search-layer-input-search::placeholder {
+            color: #444444!important;
+        }
+        .search-layer-input-search {
+            background-color: #f8f8f8!important;
+        }
+        .ol-control > *:focus, .ol-control >*:hover {
+            background-color: rgba(248, 248, 248, 0.7)!important;
+        } 
+        .ol-control {
+            background-color: rgba(255,255,255,.4) !important;
+            padding: 2px !important;
+        } 
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    font-family: "Zen Kaku Gothic New", sans-serif;
+}
+* { box-sizing: border-box; }
+.app-container { width: 100%; height: 100vh; display: flex; flex-direction: column; }
+.topbar {
+    min-height: 72px; display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; padding: 10px 20px; background: #fff;
+    box-shadow: 0 2px 10px rgba(0,0,0,.08); z-index: 1000;
+}
+.title-group h1 { margin: 0; font-size: 1.35rem; }
+.title-group p { margin: 2px 0 0; color: #666; font-size: .85rem; }
+#prefectureSelect, #officeSearch, #searchBtn {
+    min-height: 42px; padding: .65rem .85rem; border-radius: 8px;
+    border: 1px solid #ddd; font-size: .95rem;
+}
+#prefectureSelect { min-width: 180px; background: #fff; }
+.search-group, .search-container { display: flex; align-items: center; gap: 8px; }
+.search-container { position: relative; }
+#officeSearch { width: 240px; }
+#searchBtn { border-color: #2457a7; background: #2457a7; color: #fff; cursor: pointer; white-space: nowrap; }
+#searchBtn:hover { background: #1b4485; }
+#content { flex: 1; min-height: 0; display: flex; overflow: hidden; }
+#map-wrapper { flex: 1; min-width: 0; min-height: 0; }
+#map { width: 100% !important; height: 100% !important; }
+#results-panel {
+    width: 320px; flex: 0 0 320px; display: flex; flex-direction: column;
+    min-height: 0; background: #fff; border-left: 1px solid #ddd;
+}
+.results-heading { margin: 0; padding: 14px 16px 10px; font-size: 1rem; border-bottom: 1px solid #eee; }
+#results-summary { padding: 8px 16px; color: #666; font-size: .82rem; border-bottom: 1px solid #eee; }
+#searchResults { flex: 1; min-height: 0; overflow-y: auto; }
+.result-group-heading { padding: 8px 14px; background: #f4f6f8; color: #555; font-size: .82rem; font-weight: 700; border-bottom: 1px solid #e5e5e5; }
+.result-item { padding: 12px 14px; cursor: pointer; border-bottom: 1px solid #eee; line-height: 1.45; overflow-wrap: anywhere; }
+.result-item:hover, .result-item:focus { background: #f2f6fc; outline: none; }
+.result-empty { padding: 16px; color: #777; font-size: .9rem; }
+@media (max-width: 760px) {
+    .topbar { align-items: stretch; flex-direction: column; gap: 10px; padding: 10px 12px; }
+    .title-group h1 { font-size: 1.15rem; }
+    .search-group, .search-container { width: 100%; }
+    #prefectureSelect { min-width: 0; width: 42%; }
+    #officeSearch { width: 100%; min-width: 0; }
+    #content { flex-direction: column; }
+    #results-panel { width: 100%; flex: 0 0 38%; border-left: 0; border-top: 1px solid #ddd; }
+}
+
+        </style>
+  <title>
+  </title>
+ </head>
+ <body>
+  <div class="app-container">
+   <header class="topbar">
+    <div class="title-group">
+     <h1>
+      全国風景印マップ
+     </h1>
+     <p>
+      全国の風景印配置郵便局を検索できます
+     </p>
+    </div>
+    <div class="search-group">
+     <select id="prefectureSelect">
+      <option value="">
+       都道府県を選択
+      </option>
+      <option>
+       北海道
+      </option>
+      <option>
+       青森県
+      </option>
+      <option>
+       岩手県
+      </option>
+      <option>
+       宮城県
+      </option>
+      <option>
+       秋田県
+      </option>
+      <option>
+       山形県
+      </option>
+      <option>
+       福島県
+      </option>
+      <option>
+       茨城県
+      </option>
+      <option>
+       栃木県
+      </option>
+      <option>
+       群馬県
+      </option>
+      <option>
+       埼玉県
+      </option>
+      <option>
+       千葉県
+      </option>
+      <option>
+       東京都
+      </option>
+      <option>
+       神奈川県
+      </option>
+      <option>
+       新潟県
+      </option>
+      <option>
+       富山県
+      </option>
+      <option>
+       石川県
+      </option>
+      <option>
+       福井県
+      </option>
+      <option>
+       山梨県
+      </option>
+      <option>
+       長野県
+      </option>
+      <option>
+       岐阜県
+      </option>
+      <option>
+       静岡県
+      </option>
+      <option>
+       愛知県
+      </option>
+      <option>
+       三重県
+      </option>
+      <option>
+       滋賀県
+      </option>
+      <option>
+       京都府
+      </option>
+      <option>
+       大阪府
+      </option>
+      <option>
+       兵庫県
+      </option>
+      <option>
+       奈良県
+      </option>
+      <option>
+       和歌山県
+      </option>
+      <option>
+       鳥取県
+      </option>
+      <option>
+       島根県
+      </option>
+      <option>
+       岡山県
+      </option>
+      <option>
+       広島県
+      </option>
+      <option>
+       山口県
+      </option>
+      <option>
+       徳島県
+      </option>
+      <option>
+       香川県
+      </option>
+      <option>
+       愛媛県
+      </option>
+      <option>
+       高知県
+      </option>
+      <option>
+       福岡県
+      </option>
+      <option>
+       佐賀県
+      </option>
+      <option>
+       長崎県
+      </option>
+      <option>
+       熊本県
+      </option>
+      <option>
+       大分県
+      </option>
+      <option>
+       宮崎県
+      </option>
+      <option>
+       鹿児島県
+      </option>
+      <option>
+       沖縄県
+      </option>
+     </select>
+     <div class="search-container">
+      <input autocomplete="off" id="officeSearch" placeholder="郵便局名を検索" type="text"/>
+      <button id="searchBtn" type="button">検索</button>
+     </div>
+    </div>
+   </header>
+   <div id="content">
+        <div id="map-wrapper">
+            <div id="map">
+                <div id="popup" class="ol-popup">
+                    <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+                    <div id="popup-content"></div>
+                </div>
+            </div>
+        </div>
+        <aside id="results-panel" aria-label="郵便局検索結果">
+            <h2 class="results-heading">郵便局一覧</h2>
+            <div id="results-summary">検索ボタンを押すと結果が表示されます。</div>
+            <div id="searchResults">
+                <div class="result-empty">郵便局名を入力して検索してください。</div>
+            </div>
+        </aside>
+    </div>
+</div>
+        <script src="resources/qgis2web_expressions.js">
+  </script>
+  <script src="./resources/functions.js">
+  </script>
+  <script src="./resources/ol.js">
+  </script>
+  <script src="./resources/ol-layerswitcher.js">
+  </script>
+  <script src="resources/photon-geocoder-autocomplete.min.js">
+  </script>
+  <script src="resources/olms.js">
+  </script>
+  <script src="layers/post_All_1.js">
+  </script>
+  <script src="styles/post_All_1_style.js">
+  </script>
+  <script src="./layers/layers.js" type="text/javascript">
+  </script>
+  <script src="./resources/Autolinker.min.js">
+  </script>
+  <script src="./resources/qgis2web.js">
+  </script>
+  <script>
+// =====================================================
+// 検索・強調表示
+// =====================================================
+
+let highlightLayer = new ol.layer.Vector({
+    source: new ol.source.Vector()
+});
+
+map.addLayer(highlightLayer);
+
+const searchInput =
+    document.getElementById(
+        "officeSearch"
+    );
+
+const searchButton =
+    document.getElementById(
+        "searchBtn"
+    );
+
+const resultsBox =
+    document.getElementById(
+        "searchResults"
+    );
+
+const resultsSummary =
+    document.getElementById(
+        "results-summary"
+    );
+
+function getOfficeName(feature){
+
+    return (
+        feature.get(
+            "post_offices_name"
+        ) || ""
+    ).trim();
+
+}
+
+function highlightFeatures(features){
+
+    highlightLayer
+        .getSource()
+        .clear();
+
+    features.forEach(function(feature){
+
+        const clone =
+            feature.clone();
+
+        clone.setStyle(
+            new ol.style.Style({
+
+                image:
+                    new ol.style.Circle({
+
+                        radius: 10,
+
+                        fill:
+                            new ol.style.Fill({
+                                color:"#ffd700"
+                            }),
+
+                        stroke:
+                            new ol.style.Stroke({
+                                color:"#ff0000",
+                                width:3
+                            })
+
+                    })
+
+            })
+        );
+
+        highlightLayer
+            .getSource()
+            .addFeature(clone);
+
+    });
+
+}
+
+function zoomToFeature(feature){
+
+    map.getView().fit(
+
+        feature
+            .getGeometry()
+            .getExtent(),
+
+        {
+
+            padding:
+                [40,40,40,40],
+
+            maxZoom:16,
+
+            duration:800
+
+        }
+
+    );
+
+}
+
+function findPostOffice(){
+
+    let keyword =
+        searchInput.value.trim();
+
+    resultsBox.innerHTML = "";
+
+    highlightLayer
+        .getSource()
+        .clear();
+
+    if(!keyword){
+
+        resultsSummary.textContent =
+            "検索語を入力してください。";
+
+        resultsBox.innerHTML =
+            '<div class="result-empty">郵便局名を入力してください。</div>';
+
+        return;
+
+    }
+
+    const baseKeyword =
+        keyword.replace(
+            /郵便局$/,
+            ""
+        );
+
+    const exactKeyword =
+        baseKeyword + "郵便局";
+
+    const features =
+        lyr_post_All_1
+            .getSource()
+            .getFeatures();
+
+    // ------------------
+    // 1. 完全一致
+    // A郵便局
+    // ------------------
+
+    const exactMatches =
+        features.filter(f => {
+
+            const name =
+                getOfficeName(f);
+
+            return (
+                name === exactKeyword
+            );
+
+        });
+
+    // ------------------
+    // 2. 前方一致
+    // A郵便局xx
+    // Axx郵便局
+    // ------------------
+
+    const prefixMatches =
+        features.filter(f => {
+
+            const name =
+                getOfficeName(f);
+
+            if(
+                exactMatches.includes(f)
+            ){
+                return false;
+            }
+
+            return (
+                name.startsWith(
+                    baseKeyword
+                )
+            );
+
+        });
+
+    // ------------------
+    // 3. 後方一致
+    // xxA郵便局
+    // ------------------
+
+    const suffixMatches =
+        features.filter(f => {
+
+            const name =
+                getOfficeName(f);
+
+            if(
+                exactMatches.includes(f) ||
+                prefixMatches.includes(f)
+            ){
+                return false;
+            }
+
+            return (
+                name.endsWith(
+                    exactKeyword
+                )
+            );
+
+        });
+
+    // ------------------
+    // 4. 部分一致
+    // xxAxx郵便局
+    // ------------------
+
+    const containsMatches =
+        features.filter(f => {
+
+            const name =
+                getOfficeName(f);
+
+            if(
+                exactMatches.includes(f) ||
+                prefixMatches.includes(f) ||
+                suffixMatches.includes(f)
+            ){
+                return false;
+            }
+
+            return (
+                name.includes(
+                    baseKeyword
+                )
+            );
+
+        });
+
+    const matches = [
+
+        ...exactMatches,
+        ...prefixMatches,
+        ...suffixMatches,
+        ...containsMatches
+
+    ];
+
+    highlightFeatures(
+        matches
+    );
+
+    resultsSummary.textContent =
+        matches.length +
+        " 件見つかりました";
+
+    if(
+        matches.length === 0
+    ){
+
+        resultsBox.innerHTML =
+            '<div class="result-empty">該当局なし</div>';
+
+        return;
+
+    }
+
+    const groups = [
+
+        {
+            label:"完全一致",
+            features:exactMatches
+        },
+
+        {
+            label:"前方一致",
+            features:prefixMatches
+        },
+
+        {
+            label:"後方一致",
+            features:suffixMatches
+        },
+
+        {
+            label:"部分一致",
+            features:containsMatches
+        }
+
+    ];
+
+    groups.forEach(function(group){
+
+        if(
+            group.features.length === 0
+        ){
+            return;
+        }
+
+        const heading =
+            document.createElement(
+                "div"
+            );
+
+        heading.className =
+            "result-group-heading";
+
+        heading.textContent =
+            group.label +
+            "（" +
+            group.features.length +
+            "件）";
+
+        resultsBox.appendChild(
+            heading
+        );
+
+        group.features.forEach(
+            function(feature){
+
+                const item =
+                    document.createElement(
+                        "div"
+                    );
+
+                item.className =
+                    "result-item";
+
+                const name =
+                    getOfficeName(
+                        feature
+                    );
+
+                const pref =
+                    feature.get(
+                        "post_offices_prefecture"
+                    ) || "";
+
+                item.textContent =
+                    name +
+                    "（" +
+                    pref +
+                    "）";
+
+                item.addEventListener(
+                    "click",
+                    function(){
+
+                        zoomToFeature(
+                            feature
+                        );
+
+                    }
+                );
+
+                item.addEventListener(
+                    "dblclick",
+                    function(){
+
+                        zoomToFeature(
+                            feature
+                        );
+
+                    }
+                );
+
+                resultsBox.appendChild(
+                    item
+                );
+
+            }
+        );
+
+    });
+
+}
+
+searchButton.addEventListener(
+    "click",
+    findPostOffice
+);
+
+searchInput.addEventListener(
+    "keydown",
+    function(event){
+
+        if(
+            event.key === "Enter"
+        ){
+            findPostOffice();
+        }
+
+    }
+);
+
+const PREFECTURES = {
+
+"北海道":[141.3545,43.0621],
+"青森県":[140.7400,40.8244],
+"岩手県":[141.1527,39.7036],
+"宮城県":[140.8719,38.2688],
+"秋田県":[140.1024,39.7186],
+"山形県":[140.3633,38.2404],
+"福島県":[140.4676,37.7503],
+
+"茨城県":[140.4468,36.3418],
+"栃木県":[139.8836,36.5658],
+"群馬県":[139.0608,36.3911],
+"埼玉県":[139.6489,35.8569],
+"千葉県":[140.1233,35.6050],
+"東京都":[139.6917,35.6895],
+"神奈川県":[139.6425,35.4478],
+
+"新潟県":[139.0364,37.9026],
+"富山県":[137.2114,36.6953],
+"石川県":[136.6256,36.5944],
+"福井県":[136.2216,36.0652],
+"山梨県":[138.5684,35.6642],
+"長野県":[138.1810,36.6513],
+"岐阜県":[136.7223,35.3912],
+"静岡県":[138.3831,34.9769],
+"愛知県":[136.9066,35.1815],
+
+"三重県":[136.5086,34.7303],
+"滋賀県":[135.8686,35.0045],
+"京都府":[135.7681,35.0116],
+"大阪府":[135.5023,34.6937],
+"兵庫県":[135.1955,34.6913],
+"奈良県":[135.8048,34.6851],
+"和歌山県":[135.1675,34.2260],
+
+"鳥取県":[134.2383,35.5037],
+"島根県":[133.0505,35.4723],
+"岡山県":[133.9344,34.6618],
+"広島県":[132.4553,34.3852],
+"山口県":[131.4705,34.1859],
+
+"徳島県":[134.5594,34.0658],
+"香川県":[134.0434,34.3401],
+"愛媛県":[132.7657,33.8416],
+"高知県":[133.5311,33.5597],
+
+"福岡県":[130.4017,33.5902],
+"佐賀県":[130.3009,33.2494],
+"長崎県":[129.8737,32.7503],
+"熊本県":[130.7417,32.8031],
+"大分県":[131.6126,33.2382],
+"宮崎県":[131.4202,31.9111],
+"鹿児島県":[130.5581,31.5602],
+"沖縄県":[127.6809,26.2124]
+
+};
+
+const prefectureSelect = document.getElementById("prefectureSelect");
+  prefectureSelect.addEventListener("change", function () {
+      const pref = this.value;
+      const center = PREFECTURES[pref];
+      if (!pref || !center || typeof map === "undefined" || !map.getView) {
+          return;
+      }
+      map.getView().animate({
+          center: ol.proj.fromLonLat(center),
+          zoom: 10,
+          duration: 800
+      });
+  });
+
+</script>
+ </body>
+</html>
