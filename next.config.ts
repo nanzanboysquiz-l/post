@@ -1,12 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  async redirects() {
+  async rewrites() {
     return [
       {
-        source: "/map/index.html",
-        destination: "/map/",
-        permanent: true,
+        source: "/map",
+        destination: "/map/index.html",
       },
     ];
   },
