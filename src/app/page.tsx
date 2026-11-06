@@ -277,7 +277,7 @@ export default function Home() {
           <Link href="/collectors" className="text-sm bg-red-800 text-white py-1 px-3 rounded hover:bg-red-900 transition font-medium">
             収集者別リスト
           </Link>
-          <a href="/map" className="text-sm bg-blue-700 text-white py-1 px-3 rounded hover:bg-blue-800 transition font-medium">
+          <a href="/map/index.html" className="text-sm bg-blue-700 text-white py-1 px-3 rounded hover:bg-blue-800 transition font-medium">
             地図で見る
           </a>
           <span className="text-gray-600 font-medium border-l pl-4 ml-2">{userName} さん</span>
