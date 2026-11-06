@@ -50,6 +50,12 @@ body {
 }
 .title-group h1 { margin: 0; font-size: 1.35rem; }
 .title-group p { margin: 2px 0 0; color: #666; font-size: .85rem; }
+.app-link {
+    display: inline-flex; align-items: center; min-height: 42px; padding: .65rem .85rem;
+    border-radius: 8px; background: #2457a7; color: #fff; text-decoration: none;
+    font-size: .95rem; white-space: nowrap;
+}
+.app-link:hover { background: #1b4485; }
 #prefectureSelect, #collectionFilter, #officeSearch, #searchBtn {
     min-height: 42px; padding: .65rem .85rem; border-radius: 8px;
     border: 1px solid #ddd; font-size: .95rem;
@@ -105,6 +111,7 @@ body {
       データ更新日時を取得中...
      </p>
     </div>
+    <a class="app-link" href="/">データベースに戻る</a>
     <div class="search-group">
      <select id="prefectureSelect">
       <option value="">
