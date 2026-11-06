@@ -422,6 +422,8 @@ function onSingleClickFeatures(evt) {
                 }
             }
         }
+    }, {
+        hitTolerance: evt.originalEvent && evt.originalEvent.pointerType === 'touch' ? 8 : 0
     });
     if (popupText === '<ul>') {
         popupText = '';
