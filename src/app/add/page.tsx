@@ -23,6 +23,7 @@ export default function AddPostOffice() {
   // フォームの入力状態
   const [prefecture, setPrefecture] = useState<string>("北海道");
   const [municipality, setMunicipality] = useState<string>("");
+  const [instruction, setInstruction] = useState<boolean>(false);
   const [name, setName] = useState<string>("");
   const [isCollected, setIsCollected] = useState<boolean>(false);
   const [collectedDate, setCollectedDate] = useState<string>("");
@@ -53,6 +54,7 @@ export default function AddPostOffice() {
     const payload = {
       prefecture,
       municipality: municipality.trim() || null,
+      instruction,
       name: name.trim(),
       is_collected: isCollected,
       collected_date: isCollected && collectedDate ? collectedDate : null,
@@ -70,6 +72,7 @@ export default function AddPostOffice() {
       // 連続で登録しやすいように一部の項目をリセット
       setName("");
       setMunicipality("");
+      setInstruction(false);
       setIsCollected(false);
       setMemo("");
       setIsSubmitting(false);
@@ -125,6 +128,18 @@ export default function AddPostOffice() {
               placeholder="例：札幌市"
               className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white opacity-100 placeholder:text-gray-500 placeholder:opacity-100"
             />
+          </div>
+
+          <div>
+            <label className="flex items-center gap-2 text-gray-800 font-bold cursor-pointer">
+              <input
+                type="checkbox"
+                checked={instruction}
+                onChange={(e) => setInstruction(e.target.checked)}
+                className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 opacity-100"
+              />
+              解説書きが貼り付けられている
+            </label>
           </div>
 
           <div>

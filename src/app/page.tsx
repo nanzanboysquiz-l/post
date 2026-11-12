@@ -32,6 +32,7 @@ export default function Home() {
   
   const [editName, setEditName] = useState<string>("");
   const [editDate, setEditDate] = useState<string>("");
+  const [editInstruction, setEditInstruction] = useState<boolean>(false);
   const [editMemo, setEditMemo] = useState<string>("");
   const [editCollector, setEditCollector] = useState<string>("");
 
@@ -121,6 +122,7 @@ export default function Home() {
     setEditingPostOffice(po);
     setEditName(po.name || "");
     setEditDate(po.collected_date || "");
+    setEditInstruction(Boolean(po.instruction));
     setEditMemo(po.memo || "");
     setEditCollector(po.collector_name || "");
   };
@@ -142,6 +144,7 @@ export default function Home() {
               ...po, 
               name: editName.trim(),
               collected_date: editDate || null, 
+              instruction: editInstruction,
               memo: editMemo,
               collector_name: editCollector || null
             }
@@ -154,6 +157,7 @@ export default function Home() {
       .update({
         name: editName.trim(),
         collected_date: editDate || null,
+        instruction: editInstruction,
         memo: editMemo,
         collector_name: editCollector || null,
       })
@@ -375,11 +379,16 @@ export default function Home() {
               <li key={po.id} className="flex justify-between items-center p-3 hover:bg-gray-50 border-b last:border-0 print:border-b-gray-300 print:break-inside-avoid">
                 <div className="flex flex-col">
                   {/* ▼ 郵便局名と一緒に市区町村名も表示 */}
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <span className="font-medium text-gray-900">{po.name}</span>
                     {po.municipality && (
                       <span className="text-xs bg-gray-200 text-gray-700 px-2 py-0.5 rounded">
                         {po.municipality}
+                      </span>
+                    )}
+                    {po.instruction && (
+                      <span className="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded">
+                        解説書き貼付あり
                       </span>
                     )}
                   </div>
@@ -432,6 +441,18 @@ export default function Home() {
                   onChange={(e) => setEditName(e.target.value)}
                   className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold text-black bg-white opacity-100"
                 />
+              </div>
+
+              <div>
+                <label className="flex items-center gap-2 text-gray-700 text-sm font-bold cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={editInstruction}
+                    onChange={(e) => setEditInstruction(e.target.checked)}
+                    className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 opacity-100"
+                  />
+                  解説書きが貼り付けられている
+                </label>
               </div>
 
               <div>

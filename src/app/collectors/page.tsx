@@ -31,6 +31,7 @@ export default function CollectorsPage() {
   const [editingPostOffice, setEditingPostOffice] = useState<any | null>(null);
   const [editName, setEditName] = useState<string>("");
   const [editDate, setEditDate] = useState<string>("");
+  const [editInstruction, setEditInstruction] = useState<boolean>(false);
   const [editMemo, setEditMemo] = useState<string>("");
   const [editCollector, setEditCollector] = useState<string>("");
 
@@ -84,6 +85,7 @@ export default function CollectorsPage() {
     setEditingPostOffice(po);
     setEditName(po.name || "");
     setEditDate(po.collected_date || "");
+    setEditInstruction(Boolean(po.instruction));
     setEditMemo(po.memo || "");
     setEditCollector(po.collector_name || "");
   };
@@ -106,6 +108,7 @@ export default function CollectorsPage() {
               ...po, 
               name: editName.trim(),
               collected_date: editDate || null, 
+              instruction: editInstruction,
               memo: editMemo,
               collector_name: editCollector || null
             }
@@ -118,6 +121,7 @@ export default function CollectorsPage() {
       .update({
         name: editName.trim(),
         collected_date: editDate || null,
+        instruction: editInstruction,
         memo: editMemo,
         collector_name: editCollector || null,
       })
@@ -310,6 +314,18 @@ export default function CollectorsPage() {
                   onChange={(e) => setEditName(e.target.value)}
                   className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold text-black bg-white opacity-100"
                 />
+              </div>
+
+              <div>
+                <label className="flex items-center gap-2 text-gray-700 text-sm font-bold cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={editInstruction}
+                    onChange={(e) => setEditInstruction(e.target.checked)}
+                    className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 opacity-100"
+                  />
+                  解説書きが貼り付けられている
+                </label>
               </div>
 
               <div>
