@@ -298,6 +298,12 @@ export default function Home() {
     if (filterType === "uncollected" && po.is_collected) {
       return false;
     }
+    if (filterType === "collectedWithInstruction" && (!po.is_collected || !po.instruction)) {
+      return false;
+    }
+    if (filterType === "collectedWithoutInstruction" && (!po.is_collected || po.instruction)) {
+      return false;
+    }
     return true;
   });
 
@@ -408,6 +414,8 @@ export default function Home() {
             >
               <option value="all">すべて表示</option>
               <option value="collected">取得済のみ</option>
+              <option value="collectedWithInstruction">収集・解説貼付済のみ</option>
+              <option value="collectedWithoutInstruction">収集済・解説未貼付</option>
               <option value="uncollected">未取得のみ</option>
             </select>
           </div>
