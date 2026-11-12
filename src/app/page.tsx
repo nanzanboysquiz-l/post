@@ -14,6 +14,15 @@ const PREFECTURES = [
   "熊本県", "大分県", "宮崎県", "鹿児島県", "沖縄県","海外"
 ];
 
+const getMunicipalityKey = (county: string | null, municipality: string) =>
+  JSON.stringify([county ?? "", municipality]);
+
+const formatMunicipality = (
+  county: string | null | undefined,
+  municipality: string,
+  displayMode: "withCounty" | "municipalityOnly",
+) => (displayMode === "withCounty" && county ? `${county}${municipality}` : municipality);
+
 export default function Home() {
   const [userName, setUserName] = useState<string>("");
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
@@ -25,6 +34,7 @@ export default function Home() {
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [filterType, setFilterType] = useState<string>("all");
+  const [municipalityDisplayMode, setMunicipalityDisplayMode] = useState<"withCounty" | "municipalityOnly">("withCounty");
   // ▼ 収集者フィルターの代わりに市区町村フィルターのStateを追加
   const [selectedMunicipality, setSelectedMunicipality] = useState<string>("all");
 
@@ -32,6 +42,8 @@ export default function Home() {
   
   const [editName, setEditName] = useState<string>("");
   const [editDate, setEditDate] = useState<string>("");
+  const [editCounty, setEditCounty] = useState<string>("");
+  const [editMunicipality, setEditMunicipality] = useState<string>("");
   const [editInstruction, setEditInstruction] = useState<boolean>(false);
   const [editMemo, setEditMemo] = useState<string>("");
   const [editCollector, setEditCollector] = useState<string>("");
@@ -71,11 +83,23 @@ export default function Home() {
 
   // ▼ 取得した郵便局一覧から市区町村の一覧を重複排除してソート
   const uniqueMunicipalities = useMemo(() => {
-    const list = postOffices
-      .map((po) => po.municipality)
-      .filter((muni): muni is string => Boolean(muni && muni.trim() !== ""));
-    return Array.from(new Set(list)).sort((a, b) => a.localeCompare(b, "ja"));
+    const municipalities = new Map<string, { county: string | null; municipality: string }>();
+    postOffices.forEach((po) => {
+      const municipality = po.municipality?.trim();
+      if (!municipality) return;
+      const county = po.county?.trim() || null;
+      municipalities.set(getMunicipalityKey(county, municipality), { county, municipality });
+    });
+    return Array.from(municipalities.entries())
+      .map(([key, value]) => ({ key, ...value }))
+      .sort((a, b) => {
+        const countyComparison = (a.county || "").localeCompare(b.county || "", "ja");
+        return countyComparison || a.municipality.localeCompare(b.municipality, "ja");
+      });
   }, [postOffices]);
+  const selectedMunicipalityOption = uniqueMunicipalities.find(
+    (item) => item.key === selectedMunicipality,
+  );
 
   const toggleStatus = async (id: string, currentStatus: boolean, poName: string) => {
     const newStatus = !currentStatus;
@@ -122,6 +146,8 @@ export default function Home() {
     setEditingPostOffice(po);
     setEditName(po.name || "");
     setEditDate(po.collected_date || "");
+    setEditCounty(po.county || "");
+    setEditMunicipality(po.municipality || "");
     setEditInstruction(Boolean(po.instruction));
     setEditMemo(po.memo || "");
     setEditCollector(po.collector_name || "");
@@ -144,6 +170,8 @@ export default function Home() {
               ...po, 
               name: editName.trim(),
               collected_date: editDate || null, 
+              county: editCounty.trim() || null,
+              municipality: editMunicipality.trim() || null,
               instruction: editInstruction,
               memo: editMemo,
               collector_name: editCollector || null
@@ -157,6 +185,8 @@ export default function Home() {
       .update({
         name: editName.trim(),
         collected_date: editDate || null,
+        county: editCounty.trim() || null,
+        municipality: editMunicipality.trim() || null,
         instruction: editInstruction,
         memo: editMemo,
         collector_name: editCollector || null,
@@ -250,12 +280,16 @@ export default function Home() {
     if (searchQuery) {
       const matchName = po.name.includes(searchQuery);
       const matchMuni = po.municipality ? po.municipality.includes(searchQuery) : false;
-      if (!matchName && !matchMuni) {
+      const matchCounty = po.county ? po.county.includes(searchQuery) : false;
+      if (!matchName && !matchMuni && !matchCounty) {
         return false;
       }
     }
     // ▼ 市区町村フィルターのロジック
-    if (selectedMunicipality !== "all" && po.municipality !== selectedMunicipality) {
+    if (
+      selectedMunicipality !== "all" &&
+      getMunicipalityKey(po.county || null, po.municipality || "") !== selectedMunicipality
+    ) {
       return false;
     }
     if (filterType === "collected" && !po.is_collected) {
@@ -297,7 +331,15 @@ export default function Home() {
       <div className="hidden print:block mb-6">
         <h1 className="text-2xl font-bold text-gray-800">
           Rits地理研風景印データベース - {selectedPrefecture}
-          {selectedMunicipality !== "all" ? ` (${selectedMunicipality})` : ""}
+          {selectedMunicipality !== "all"
+            ? ` (${selectedMunicipalityOption
+                ? formatMunicipality(
+                    selectedMunicipalityOption.county,
+                    selectedMunicipalityOption.municipality,
+                    municipalityDisplayMode,
+                  )
+                : selectedMunicipality})`
+            : ""}
         </h1>
         <p className="text-gray-600">出力日: {new Date().toLocaleDateString("ja-JP")}</p>
       </div>
@@ -330,16 +372,32 @@ export default function Home() {
           
           {/* ▼ 収集者検索を削除し、市区町村の絞り込みに変更 */}
           <div className="flex-1">
-            <label className="block text-gray-700 font-medium mb-2 text-sm">市区町村で絞り込む</label>
+            <label className="block text-gray-700 font-medium mb-2 text-sm">自治体名で絞り込む</label>
             <select
               value={selectedMunicipality}
               onChange={(e) => setSelectedMunicipality(e.target.value)}
               className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer text-black bg-white opacity-100 font-medium"
             >
               <option value="all">すべての市区町村</option>
-              {uniqueMunicipalities.map((muni) => (
-                <option key={muni} value={muni}>{muni}</option>
+              {uniqueMunicipalities.map(({ key, county, municipality }) => (
+                <option key={key} value={key}>{county ? `${county}${municipality}` : municipality}</option>
               ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-gray-700 font-medium mb-2 text-sm">自治体名の表示</label>
+            <select
+              value={municipalityDisplayMode}
+              onChange={(e) =>
+                setMunicipalityDisplayMode(
+                  e.target.value === "municipalityOnly" ? "municipalityOnly" : "withCounty",
+                )
+              }
+              className="border border-gray-300 p-2 rounded w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer text-black bg-white opacity-100 font-medium"
+            >
+              <option value="withCounty">郡名＋自治体名</option>
+              <option value="municipalityOnly">自治体名</option>
             </select>
           </div>
 
@@ -383,12 +441,12 @@ export default function Home() {
                     <span className="font-medium text-gray-900">{po.name}</span>
                     {po.municipality && (
                       <span className="text-xs bg-gray-200 text-gray-700 px-2 py-0.5 rounded">
-                        {po.municipality}
+                        {formatMunicipality(po.county, po.municipality, municipalityDisplayMode)}
                       </span>
                     )}
                     {po.instruction && (
                       <span className="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded">
-                        解説書き貼付あり
+                        解説貼付済
                       </span>
                     )}
                   </div>
@@ -440,6 +498,26 @@ export default function Home() {
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
                   className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold text-black bg-white opacity-100"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 text-sm font-bold mb-2">郡名</label>
+                <input
+                  type="text"
+                  value={editCounty}
+                  onChange={(e) => setEditCounty(e.target.value)}
+                  className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white opacity-100"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 text-sm font-bold mb-2">自治体名</label>
+                <input
+                  type="text"
+                  value={editMunicipality}
+                  onChange={(e) => setEditMunicipality(e.target.value)}
+                  className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white opacity-100"
                 />
               </div>
 

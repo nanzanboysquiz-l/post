@@ -31,6 +31,8 @@ export default function CollectorsPage() {
   const [editingPostOffice, setEditingPostOffice] = useState<any | null>(null);
   const [editName, setEditName] = useState<string>("");
   const [editDate, setEditDate] = useState<string>("");
+  const [editCounty, setEditCounty] = useState<string>("");
+  const [editMunicipality, setEditMunicipality] = useState<string>("");
   const [editInstruction, setEditInstruction] = useState<boolean>(false);
   const [editMemo, setEditMemo] = useState<string>("");
   const [editCollector, setEditCollector] = useState<string>("");
@@ -85,6 +87,8 @@ export default function CollectorsPage() {
     setEditingPostOffice(po);
     setEditName(po.name || "");
     setEditDate(po.collected_date || "");
+    setEditCounty(po.county || "");
+    setEditMunicipality(po.municipality || "");
     setEditInstruction(Boolean(po.instruction));
     setEditMemo(po.memo || "");
     setEditCollector(po.collector_name || "");
@@ -108,6 +112,8 @@ export default function CollectorsPage() {
               ...po, 
               name: editName.trim(),
               collected_date: editDate || null, 
+              county: editCounty.trim() || null,
+              municipality: editMunicipality.trim() || null,
               instruction: editInstruction,
               memo: editMemo,
               collector_name: editCollector || null
@@ -121,6 +127,8 @@ export default function CollectorsPage() {
       .update({
         name: editName.trim(),
         collected_date: editDate || null,
+        county: editCounty.trim() || null,
+        municipality: editMunicipality.trim() || null,
         instruction: editInstruction,
         memo: editMemo,
         collector_name: editCollector || null,
@@ -313,6 +321,26 @@ export default function CollectorsPage() {
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
                   className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold text-black bg-white opacity-100"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 text-sm font-bold mb-2">郡名</label>
+                <input
+                  type="text"
+                  value={editCounty}
+                  onChange={(e) => setEditCounty(e.target.value)}
+                  className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white opacity-100"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 text-sm font-bold mb-2">自治体名</label>
+                <input
+                  type="text"
+                  value={editMunicipality}
+                  onChange={(e) => setEditMunicipality(e.target.value)}
+                  className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white opacity-100"
                 />
               </div>
 
