@@ -20,8 +20,8 @@ const getMunicipalityKey = (county: string | null, municipality: string) =>
 const formatMunicipality = (
   county: string | null | undefined,
   municipality: string,
-  displayMode: "withCounty" | "municipalityOnly",
-) => (displayMode === "withCounty" && county ? `${county}${municipality}` : municipality);
+  omitCounty: boolean,
+) => (!omitCounty && county ? `${county}${municipality}` : municipality);
 
 export default function Home() {
   const [userName, setUserName] = useState<string>("");
@@ -34,7 +34,7 @@ export default function Home() {
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [filterType, setFilterType] = useState<string>("all");
-  const [municipalityDisplayMode, setMunicipalityDisplayMode] = useState<"withCounty" | "municipalityOnly">("withCounty");
+  const [omitCounty, setOmitCounty] = useState<boolean>(false);
   // ▼ 収集者フィルターの代わりに市区町村フィルターのStateを追加
   const [selectedMunicipality, setSelectedMunicipality] = useState<string>("all");
 
@@ -336,7 +336,7 @@ export default function Home() {
                 ? formatMunicipality(
                     selectedMunicipalityOption.county,
                     selectedMunicipalityOption.municipality,
-                    municipalityDisplayMode,
+                    omitCounty,
                   )
                 : selectedMunicipality})`
             : ""}
@@ -380,25 +380,23 @@ export default function Home() {
             >
               <option value="all">すべての市区町村</option>
               {uniqueMunicipalities.map(({ key, county, municipality }) => (
-                <option key={key} value={key}>{county ? `${county}${municipality}` : municipality}</option>
+                <option key={key} value={key}>
+                  {formatMunicipality(county, municipality, omitCounty)}
+                </option>
               ))}
             </select>
           </div>
 
-          <div>
-            <label className="block text-gray-700 font-medium mb-2 text-sm">自治体名の表示</label>
-            <select
-              value={municipalityDisplayMode}
-              onChange={(e) =>
-                setMunicipalityDisplayMode(
-                  e.target.value === "municipalityOnly" ? "municipalityOnly" : "withCounty",
-                )
-              }
-              className="border border-gray-300 p-2 rounded w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer text-black bg-white opacity-100 font-medium"
-            >
-              <option value="withCounty">郡名＋自治体名</option>
-              <option value="municipalityOnly">自治体名</option>
-            </select>
+          <div className="flex items-end">
+            <label className="flex min-h-10 items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={omitCounty}
+                onChange={(e) => setOmitCounty(e.target.checked)}
+                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              郡名を省略
+            </label>
           </div>
 
           <div>
@@ -441,7 +439,7 @@ export default function Home() {
                     <span className="font-medium text-gray-900">{po.name}</span>
                     {po.municipality && (
                       <span className="text-xs bg-gray-200 text-gray-700 px-2 py-0.5 rounded">
-                        {formatMunicipality(po.county, po.municipality, municipalityDisplayMode)}
+                        {formatMunicipality(po.county, po.municipality, omitCounty)}
                       </span>
                     )}
                     {po.instruction && (
