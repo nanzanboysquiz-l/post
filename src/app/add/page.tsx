@@ -24,6 +24,7 @@ export default function AddPostOffice() {
   const [prefecture, setPrefecture] = useState<string>("北海道");
   const [county, setCounty] = useState<string>("");
   const [municipality, setMunicipality] = useState<string>("");
+  const [municipalityKana, setMunicipalityKana] = useState<string>("");
   const [instruction, setInstruction] = useState<boolean>(false);
   const [name, setName] = useState<string>("");
   const [isCollected, setIsCollected] = useState<boolean>(false);
@@ -56,6 +57,7 @@ export default function AddPostOffice() {
       prefecture,
       county: county.trim() || null,
       municipality: municipality.trim() || null,
+      municipality_kana: municipalityKana.trim() || null,
       instruction,
       name: name.trim(),
       is_collected: isCollected,
@@ -75,6 +77,7 @@ export default function AddPostOffice() {
       setName("");
       setCounty("");
       setMunicipality("");
+      setMunicipalityKana("");
       setInstruction(false);
       setIsCollected(false);
       setMemo("");
@@ -140,6 +143,17 @@ export default function AddPostOffice() {
               value={municipality}
               onChange={(e) => setMunicipality(e.target.value)}
               placeholder="例：札幌市"
+              className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white opacity-100 placeholder:text-gray-500 placeholder:opacity-100"
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-700 font-bold mb-2">自治体名の読み（ひらがな）</label>
+            <input
+              type="text"
+              value={municipalityKana}
+              onChange={(e) => setMunicipalityKana(e.target.value)}
+              placeholder="例：さっぽろし"
               className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white opacity-100 placeholder:text-gray-500 placeholder:opacity-100"
             />
           </div>

@@ -23,6 +23,27 @@ const formatMunicipality = (
   omitCounty: boolean,
 ) => (!omitCounty && county ? `${county}${municipality}` : municipality);
 
+const KANA_ROWS = [
+  { label: "あ行", initials: "あいうえお" },
+  { label: "か行", initials: "かきくけこがぎぐげご" },
+  { label: "さ行", initials: "さしすせそざじずぜぞ" },
+  { label: "た行", initials: "たちつてとだぢづでど" },
+  { label: "な行", initials: "なにぬねの" },
+  { label: "は行", initials: "はひふへほばびぶべぼぱぴぷぺぽ" },
+  { label: "ま行", initials: "まみむめも" },
+  { label: "や行", initials: "やゆよ" },
+  { label: "ら行", initials: "らりるれろ" },
+  { label: "わ行", initials: "わをん" },
+];
+
+const getKanaRow = (kana: string | null) => {
+  const firstCharacter = kana?.trim().charAt(0);
+  if (!firstCharacter) return "その他";
+  const hiragana = String.fromCharCode(firstCharacter.charCodeAt(0) - 0x60);
+  return KANA_ROWS.find((row) => row.initials.includes(firstCharacter) || row.initials.includes(hiragana))?.label
+    ?? "その他";
+};
+
 export default function Home() {
   const [userName, setUserName] = useState<string>("");
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
@@ -44,6 +65,7 @@ export default function Home() {
   const [editDate, setEditDate] = useState<string>("");
   const [editCounty, setEditCounty] = useState<string>("");
   const [editMunicipality, setEditMunicipality] = useState<string>("");
+  const [editMunicipalityKana, setEditMunicipalityKana] = useState<string>("");
   const [editInstruction, setEditInstruction] = useState<boolean>(false);
   const [editMemo, setEditMemo] = useState<string>("");
   const [editCollector, setEditCollector] = useState<string>("");
@@ -83,20 +105,57 @@ export default function Home() {
 
   // ▼ 取得した郵便局一覧から市区町村の一覧を重複排除してソート
   const uniqueMunicipalities = useMemo(() => {
-    const municipalities = new Map<string, { county: string | null; municipality: string }>();
+    const municipalities = new Map<
+      string,
+      { county: string | null; municipality: string; municipalityKana: string | null }
+    >();
     postOffices.forEach((po) => {
       const municipality = po.municipality?.trim();
       if (!municipality) return;
       const county = po.county?.trim() || null;
-      municipalities.set(getMunicipalityKey(county, municipality), { county, municipality });
+      const municipalityKana = po.municipality_kana?.trim() || null;
+      const key = getMunicipalityKey(county, municipality);
+      const existing = municipalities.get(key);
+      municipalities.set(key, {
+        county,
+        municipality,
+        municipalityKana: existing?.municipalityKana || municipalityKana,
+      });
     });
     return Array.from(municipalities.entries())
       .map(([key, value]) => ({ key, ...value }))
       .sort((a, b) => {
+        if (a.municipalityKana && b.municipalityKana) {
+          const kanaComparison = a.municipalityKana.localeCompare(b.municipalityKana, "ja");
+          if (kanaComparison !== 0) return kanaComparison;
+        } else if (a.municipalityKana) {
+          return -1;
+        } else if (b.municipalityKana) {
+          return 1;
+        }
+        const municipalityComparison = a.municipality.localeCompare(b.municipality, "ja");
         const countyComparison = (a.county || "").localeCompare(b.county || "", "ja");
-        return countyComparison || a.municipality.localeCompare(b.municipality, "ja");
+        return municipalityComparison || countyComparison;
       });
   }, [postOffices]);
+  const municipalitiesByKanaRow = useMemo(() => {
+    const groups = new Map<string, typeof uniqueMunicipalities>();
+    uniqueMunicipalities.forEach((municipality) => {
+      const row = getKanaRow(municipality.municipalityKana);
+      const group = groups.get(row) || [];
+      group.push(municipality);
+      groups.set(row, group);
+    });
+    return [
+      ...KANA_ROWS.flatMap((row) => {
+        const municipalities = groups.get(row.label);
+        return municipalities ? [{ label: row.label, municipalities }] : [];
+      }),
+      ...(groups.has("その他")
+        ? [{ label: "その他", municipalities: groups.get("その他")! }]
+        : []),
+    ];
+  }, [uniqueMunicipalities]);
   const selectedMunicipalityOption = uniqueMunicipalities.find(
     (item) => item.key === selectedMunicipality,
   );
@@ -148,6 +207,7 @@ export default function Home() {
     setEditDate(po.collected_date || "");
     setEditCounty(po.county || "");
     setEditMunicipality(po.municipality || "");
+    setEditMunicipalityKana(po.municipality_kana || "");
     setEditInstruction(Boolean(po.instruction));
     setEditMemo(po.memo || "");
     setEditCollector(po.collector_name || "");
@@ -172,6 +232,7 @@ export default function Home() {
               collected_date: editDate || null, 
               county: editCounty.trim() || null,
               municipality: editMunicipality.trim() || null,
+              municipality_kana: editMunicipalityKana.trim() || null,
               instruction: editInstruction,
               memo: editMemo,
               collector_name: editCollector || null
@@ -187,6 +248,7 @@ export default function Home() {
         collected_date: editDate || null,
         county: editCounty.trim() || null,
         municipality: editMunicipality.trim() || null,
+        municipality_kana: editMunicipalityKana.trim() || null,
         instruction: editInstruction,
         memo: editMemo,
         collector_name: editCollector || null,
@@ -385,10 +447,14 @@ export default function Home() {
               className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer text-black bg-white opacity-100 font-medium"
             >
               <option value="all">すべての市区町村</option>
-              {uniqueMunicipalities.map(({ key, county, municipality }) => (
-                <option key={key} value={key}>
-                  {formatMunicipality(county, municipality, omitCounty)}
-                </option>
+              {municipalitiesByKanaRow.map(({ label, municipalities }) => (
+                <optgroup key={label} label={label}>
+                  {municipalities.map(({ key, county, municipality }) => (
+                    <option key={key} value={key}>
+                      {formatMunicipality(county, municipality, omitCounty)}
+                    </option>
+                  ))}
+                </optgroup>
               ))}
             </select>
           </div>
@@ -504,6 +570,17 @@ export default function Home() {
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
                   className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold text-black bg-white opacity-100"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 text-sm font-bold mb-2">自治体名の読み（ひらがな）</label>
+                <input
+                  type="text"
+                  value={editMunicipalityKana}
+                  onChange={(e) => setEditMunicipalityKana(e.target.value)}
+                  placeholder="例：さっぽろし"
+                  className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white opacity-100"
                 />
               </div>
 
