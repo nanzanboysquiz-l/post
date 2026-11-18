@@ -22,9 +22,6 @@ export default function AddPostOffice() {
 
   // フォームの入力状態
   const [prefecture, setPrefecture] = useState<string>("北海道");
-  const [county, setCounty] = useState<string>("");
-  const [municipality, setMunicipality] = useState<string>("");
-  const [municipalityKana, setMunicipalityKana] = useState<string>("");
   const [instruction, setInstruction] = useState<boolean>(false);
   const [name, setName] = useState<string>("");
   const [isCollected, setIsCollected] = useState<boolean>(false);
@@ -55,9 +52,6 @@ export default function AddPostOffice() {
 
     const payload = {
       prefecture,
-      county: county.trim() || null,
-      municipality: municipality.trim() || null,
-      municipality_kana: municipalityKana.trim() || null,
       instruction,
       name: name.trim(),
       is_collected: isCollected,
@@ -75,9 +69,6 @@ export default function AddPostOffice() {
       alert(`${name} を登録しました。`);
       // 連続で登録しやすいように一部の項目をリセット
       setName("");
-      setCounty("");
-      setMunicipality("");
-      setMunicipalityKana("");
       setInstruction(false);
       setIsCollected(false);
       setMemo("");
@@ -122,40 +113,6 @@ export default function AddPostOffice() {
                 <option key={pref} value={pref}>{pref}</option>
               ))}
             </select>
-          </div>
-
-          <div>
-            <label className="block text-gray-700 font-bold mb-2">郡名</label>
-            <input
-              type="text"
-              value={county}
-              onChange={(e) => setCounty(e.target.value)}
-              placeholder="例：阿寒郡"
-              className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white opacity-100 placeholder:text-gray-500 placeholder:opacity-100"
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-700 font-bold mb-2">自治体名</label>
-            {/* ▼ iPad文字薄れ対策を追加 */}
-            <input
-              type="text"
-              value={municipality}
-              onChange={(e) => setMunicipality(e.target.value)}
-              placeholder="例：札幌市"
-              className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white opacity-100 placeholder:text-gray-500 placeholder:opacity-100"
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-700 font-bold mb-2">自治体名の読み（ひらがな）</label>
-            <input
-              type="text"
-              value={municipalityKana}
-              onChange={(e) => setMunicipalityKana(e.target.value)}
-              placeholder="例：さっぽろし"
-              className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white opacity-100 placeholder:text-gray-500 placeholder:opacity-100"
-            />
           </div>
 
           <div>
