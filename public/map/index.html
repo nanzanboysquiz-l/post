@@ -860,33 +860,95 @@ prefectureSelect.addEventListener(
     }
 );
 
-// ---------------------
-// 更新日時表示
-// ---------------------
+async function syncPostOfficesFromDatabase() {
+    const updateInfo =
+        document.getElementById("updateInfo");
 
-fetch("./last_update.txt")
-.then(r => r.text())
-.then(text => {
+    try {
+        const response = await fetch("/api/map/post-offices", {
+            cache: "no-store"
+        });
+        if (!response.ok) {
+            const result = await response.json().catch(() => ({}));
+            throw new Error(result.error || "データベースから地図情報を取得できませんでした。");
+        }
 
-    document
-        .getElementById(
-            "updateInfo"
-        )
-        .textContent =
-        "最終更新: " +
-        text;
+        const rows = await response.json();
+        if (!Array.isArray(rows)) {
+            throw new Error("データベースの地図情報が正しい形式ではありません。");
+        }
 
-})
-.catch(() => {
+        const source = lyr_post_All_1.getSource();
+        const featuresById = new Map();
+        source.getFeatures().forEach(function(feature) {
+            const id = feature.get("post_offices_id");
+            if (id !== null && id !== undefined && String(id) !== "") {
+                featuresById.set(String(id), feature);
+            }
+        });
 
-    document
-        .getElementById(
-            "updateInfo"
-        )
-        .textContent =
-        "更新日時取得失敗";
+        const databaseIds = new Set();
+        rows.forEach(function(row) {
+            const id = String(row.id);
+            const hasCoordinates =
+                row.latitude !== null &&
+                row.latitude !== undefined &&
+                row.latitude !== "" &&
+                row.longitude !== null &&
+                row.longitude !== undefined &&
+                row.longitude !== "";
+            databaseIds.add(id);
+            let feature = featuresById.get(id);
 
-});
+            if (!feature && hasCoordinates) {
+                feature = new ol.Feature({
+                    geometry: new ol.geom.Point(
+                        ol.proj.fromLonLat([Number(row.longitude), Number(row.latitude)])
+                    )
+                });
+                source.addFeature(feature);
+            }
+            if (!feature) return;
+
+            feature.setProperties({
+                post_offices_id: id,
+                post_offices_name: row.name || "",
+                post_offices_prefecture: row.prefecture || "",
+                post_offices_municipality: row.municipality || "",
+                post_offices_county: row.county || "",
+                post_offices_is_collected: Boolean(row.is_collected),
+                post_offices_collection_status: row.is_collected ? "収集済" : "未収集",
+                post_offices_collected_date: row.collected_date || "",
+                post_offices_collector_name: row.collector_name || "",
+                post_offices_memo: row.memo || "",
+                post_offices_instruction: Boolean(row.instruction)
+            });
+
+            if (hasCoordinates) {
+                feature.setGeometry(new ol.geom.Point(
+                    ol.proj.fromLonLat([Number(row.longitude), Number(row.latitude)])
+                ));
+            }
+        });
+
+        source.getFeatures().forEach(function(feature) {
+            const id = feature.get("post_offices_id");
+            if (id !== null && id !== undefined && String(id) !== "" && !databaseIds.has(String(id))) {
+                source.removeFeature(feature);
+            }
+        });
+
+        updateInfo.textContent = "データベースと同期済み（" + rows.length + "局）";
+    } catch (error) {
+        console.error("地図データ同期エラー:", error);
+        updateInfo.textContent = error instanceof Error
+            ? "データベース同期失敗: " + error.message
+            : "データベース同期失敗";
+    }
+}
+
+syncPostOfficesFromDatabase();
+
 </script>
  </body>
 </html>
