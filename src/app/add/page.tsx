@@ -89,16 +89,16 @@ export default function AddPostOffice() {
 
   return (
     <main className="min-h-screen bg-gray-50 p-4 sm:p-8 relative">
-      <header className="flex justify-between items-center mb-8 bg-white p-4 rounded shadow">
-        <h1 className="text-xl font-bold text-gray-800">郵便局を手動登録</h1>
+      <header className="mb-8 flex flex-col gap-3 rounded bg-white p-4 shadow sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-lg font-bold text-gray-800 sm:text-xl">郵便局を手動登録</h1>
         <div className="flex items-center gap-4">
-          <Link href="/" className="text-sm bg-gray-200 text-gray-700 py-1 px-3 rounded hover:bg-gray-300 transition font-medium">
+          <Link href="/" className="flex min-h-10 items-center justify-center rounded bg-gray-200 px-3 py-2 text-center text-sm font-medium text-gray-700 transition hover:bg-gray-300">
             メインページに戻る
           </Link>
         </div>
       </header>
 
-      <div className="bg-white p-6 rounded shadow max-w-2xl mx-auto">
+      <div className="mx-auto max-w-2xl rounded bg-white p-4 shadow sm:p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-gray-700 font-bold mb-2">都道府県 <span className="text-red-500">*</span></label>
@@ -203,7 +203,7 @@ export default function AddPostOffice() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="bg-blue-600 text-white font-bold py-3 px-8 rounded hover:bg-blue-700 transition disabled:bg-gray-400"
+              className="min-h-11 w-full rounded bg-blue-600 px-8 py-3 font-bold text-white transition hover:bg-blue-700 disabled:bg-gray-400 sm:w-auto"
             >
               {isSubmitting ? "登録中..." : "データベースに登録する"}
             </button>

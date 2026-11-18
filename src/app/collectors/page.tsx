@@ -183,10 +183,10 @@ export default function CollectorsPage() {
 
   return (
     <main className="min-h-screen bg-gray-50 p-4 sm:p-8 relative">
-      <header className="flex justify-between items-center mb-8 bg-white p-4 rounded shadow print:hidden">
-        <h1 className="text-xl font-bold text-gray-800">収集者別リスト検索</h1>
+      <header className="mb-8 flex flex-col gap-3 rounded bg-white p-4 shadow sm:flex-row sm:items-center sm:justify-between print:hidden">
+        <h1 className="text-lg font-bold text-gray-800 sm:text-xl">収集者別リスト検索</h1>
         <div className="flex items-center gap-4">
-          <Link href="/" className="text-sm bg-red-800 text-white py-1 px-3 rounded hover:bg-red-900 transition font-medium">
+          <Link href="/" className="flex min-h-10 items-center justify-center rounded bg-red-800 px-3 py-2 text-sm font-medium text-white transition hover:bg-red-900">
             メインページ
           </Link>
         </div>
@@ -200,7 +200,7 @@ export default function CollectorsPage() {
         <p className="text-gray-600">出力日: {new Date().toLocaleDateString("ja-JP")}</p>
       </div>
 
-      <div className="bg-white p-6 rounded shadow mb-6 print:hidden">
+      <div className="mb-6 rounded bg-white p-4 shadow sm:p-6 print:hidden">
         <form onSubmit={handleSearch} className="flex flex-col gap-4">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
@@ -246,15 +246,15 @@ export default function CollectorsPage() {
       </div>
 
       {hasSearched && (
-        <div className="bg-white p-6 rounded shadow print:shadow-none print:p-0">
-          <div className="flex justify-between items-center mb-4 border-b pb-2">
+        <div className="rounded bg-white p-4 shadow sm:p-6 print:shadow-none print:p-0">
+          <div className="mb-4 flex flex-col gap-3 border-b pb-2 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="text-lg font-bold text-gray-900">
               検索結果 ({filteredPostOffices.length}局)
             </h2>
             {filteredPostOffices.length > 0 && (
               <button
                 onClick={handlePrint}
-                className="text-sm bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700 transition-colors print:hidden"
+                className="min-h-10 w-full rounded bg-gray-800 px-4 py-2 text-sm text-white transition-colors hover:bg-gray-700 sm:w-auto print:hidden"
               >
                 PDFで出力 (印刷)
               </button>
@@ -302,7 +302,7 @@ export default function CollectorsPage() {
       {/* ▼ 編集用モーダル UI */}
       {editingPostOffice && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 print:hidden">
-          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+          <div className="max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-lg bg-white p-4 shadow-xl sm:p-6">
             <h3 className="text-lg font-bold mb-4 border-b pb-2 text-gray-900">郵便局情報の編集</h3>
             
             <div className="space-y-4">

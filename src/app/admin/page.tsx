@@ -198,7 +198,7 @@ export default function AdminPage() {
 
   return (
     <main className="min-h-screen bg-gray-50 p-4 sm:p-8">
-      <header className="mb-6 flex items-center justify-between rounded bg-white p-4 shadow">
+      <header className="mb-6 flex flex-col gap-3 rounded bg-white p-4 shadow sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-xl font-bold text-gray-800">管理者画面</h1>
           <Link href="/" className="text-sm text-blue-700 underline">メインページへ戻る</Link>
@@ -261,7 +261,7 @@ export default function AdminPage() {
       ) : (
         <div className="space-y-8">
           <section className="rounded bg-white p-4 shadow sm:p-6">
-            <div className="mb-4 flex items-center justify-between gap-4">
+            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h2 className="text-lg font-bold text-gray-800">
                   座標未登録局（{missingCoordinates.length}局）
@@ -272,7 +272,7 @@ export default function AdminPage() {
                 type="button"
                 onClick={() => void loadAdminData()}
                 disabled={busy}
-                className="rounded bg-gray-100 px-3 py-2 text-sm text-gray-800 disabled:opacity-50"
+                className="min-h-10 w-full rounded bg-gray-100 px-3 py-2 text-sm text-gray-800 disabled:opacity-50 sm:w-auto"
               >
                 更新
               </button>
@@ -283,7 +283,7 @@ export default function AdminPage() {
               <ul className="divide-y">
                 {missingCoordinates.map((office) => (
                   <li key={office.id} className="grid gap-3 py-4 md:grid-cols-[minmax(0,1fr)_10rem_10rem_auto] md:items-end">
-                    <div>
+                  <div className="min-w-0">
                       <p className="font-medium text-gray-900">{office.name}</p>
                       <p className="text-sm text-gray-600">
                         {[office.prefecture, office.county, office.municipality].filter(Boolean).join(" ")}
@@ -333,7 +333,7 @@ export default function AdminPage() {
                       type="button"
                       onClick={() => void saveCoordinates(office)}
                       disabled={busy}
-                      className="rounded bg-blue-700 px-4 py-2 text-sm font-bold text-white disabled:opacity-50"
+                      className="min-h-10 w-full rounded bg-blue-700 px-4 py-2 text-sm font-bold text-white disabled:opacity-50 md:w-auto"
                     >
                       座標を登録
                     </button>

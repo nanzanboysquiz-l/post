@@ -359,31 +359,35 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gray-50 p-4 sm:p-8 relative">
-     <header className="flex justify-between items-center mb-8 bg-white p-4 rounded shadow print:hidden">
-        <div className="flex items-center gap-3">
+     <header className="mb-8 flex flex-col gap-4 rounded bg-white p-3 shadow sm:flex-row sm:items-center sm:justify-between sm:p-4 print:hidden">
+        <div className="flex min-w-0 items-center gap-3">
           <img src="/logo.jpg" alt="地理研風景印" className="w-10 h-10 object-cover rounded-full border border-gray-200" />
-          <h1 className="text-xl font-bold text-gray-800">Rits地理研風景印データベース</h1>
+          <h1 className="text-base font-bold leading-tight text-gray-800 sm:text-xl">Rits地理研風景印データベース</h1>
         </div>
-        <div className="flex items-center gap-4">
-          <Link href="/add" className="text-sm bg-green-700 text-white py-1 px-3 rounded hover:bg-green-800 transition font-medium print:hidden">
+        <div className="flex flex-col gap-3 sm:items-end">
+          <nav className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-end">
+          <Link href="/add" className="flex min-h-10 items-center justify-center rounded bg-green-700 px-3 py-2 text-center text-xs font-medium text-white transition hover:bg-green-800 sm:text-sm print:hidden">
             リストにない場合はこちらから登録
           </Link>
-          <Link href="/collectors" className="text-sm bg-red-800 text-white py-1 px-3 rounded hover:bg-red-900 transition font-medium">
+          <Link href="/collectors" className="flex min-h-10 items-center justify-center rounded bg-red-800 px-3 py-2 text-center text-xs font-medium text-white transition hover:bg-red-900 sm:text-sm">
             収集者別リスト
           </Link>
-          <Link href="/admin" className="text-sm bg-gray-800 text-white py-1 px-3 rounded hover:bg-gray-900 transition font-medium">
+          <Link href="/admin" className="flex min-h-10 items-center justify-center rounded bg-gray-800 px-3 py-2 text-center text-xs font-medium text-white transition hover:bg-gray-900 sm:text-sm">
             管理者
           </Link>
-          <a href="/map/index.html" className="text-sm bg-blue-700 text-white py-1 px-3 rounded hover:bg-blue-800 transition font-medium">
+          <a href="/map/index.html" className="flex min-h-10 items-center justify-center rounded bg-blue-700 px-3 py-2 text-center text-xs font-medium text-white transition hover:bg-blue-800 sm:text-sm">
             地図で見る
           </a>
-          <span className="text-gray-600 font-medium border-l pl-4 ml-2">{userName} さん</span>
+          </nav>
+          <div className="flex items-center justify-between gap-3 sm:justify-end">
+          <span className="truncate text-sm font-medium text-gray-600 sm:border-l sm:pl-4 sm:ml-2">{userName} さん</span>
           <button
             onClick={handleLogout}
-            className="text-sm bg-gray-200 text-gray-700 py-1 px-3 rounded hover:bg-gray-300 transition"
+            className="min-h-10 shrink-0 rounded bg-gray-200 px-3 py-2 text-sm text-gray-700 transition hover:bg-gray-300"
           >
             名前を変更
           </button>
+          </div>
         </div>
       </header>
 
@@ -403,7 +407,7 @@ export default function Home() {
         <p className="text-gray-600">出力日: {new Date().toLocaleDateString("ja-JP")}</p>
       </div>
 
-      <div className="bg-white p-6 rounded shadow mb-6 space-y-4 print:hidden">
+      <div className="mb-6 space-y-4 rounded bg-white p-4 shadow sm:p-6 print:hidden">
         <div>
           <label className="block text-gray-700 font-medium mb-2">都道府県を選択</label>
           <select
@@ -479,14 +483,14 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded shadow print:shadow-none print:p-0">
-        <div className="flex justify-between items-center mb-4 border-b pb-2">
+      <div className="rounded bg-white p-4 shadow sm:p-6 print:shadow-none print:p-0">
+        <div className="mb-4 flex flex-col gap-3 border-b pb-2 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-lg font-bold text-gray-900">
             {selectedPrefecture}の郵便局 ({filteredPostOffices.length}局)
           </h2>
           <button
             onClick={handlePrint}
-            className="text-sm bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700 transition-colors print:hidden"
+            className="min-h-10 w-full rounded bg-gray-800 px-4 py-2 text-sm text-white transition-colors hover:bg-gray-700 sm:w-auto print:hidden"
           >
             PDFで出力 (印刷)
           </button>
@@ -497,8 +501,8 @@ export default function Home() {
         ) : (
           <ul className="space-y-2">
             {filteredPostOffices.map((po) => (
-              <li key={po.id} className="flex justify-between items-center p-3 hover:bg-gray-50 border-b last:border-0 print:border-b-gray-300 print:break-inside-avoid">
-                <div className="flex flex-col">
+              <li key={po.id} className="flex flex-col gap-3 border-b p-3 hover:bg-gray-50 last:border-0 sm:flex-row sm:items-center sm:justify-between print:border-b-gray-300 print:break-inside-avoid">
+                <div className="flex min-w-0 flex-col">
                   {/* ▼ 郵便局名と一緒に市区町村名も表示 */}
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="font-medium text-gray-900">{po.name}</span>
@@ -520,10 +524,10 @@ export default function Home() {
                     <span className="text-xs text-gray-600 mt-1">メモ: {po.memo}</span>
                   )}
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
                   <button
                     onClick={() => toggleStatus(po.id, po.is_collected, po.name)}
-                    className={`text-xs px-3 py-1 rounded-full border transition-colors ${
+                    className={`min-h-10 flex-1 rounded-full border px-3 py-2 text-xs transition-colors sm:flex-none ${
                       po.is_collected 
                         ? "bg-green-100 text-green-800 border-green-300 hover:bg-green-200" 
                         : "bg-gray-100 text-gray-600 border-gray-300 hover:bg-gray-200"
@@ -533,7 +537,7 @@ export default function Home() {
                   </button>
                   <button
                     onClick={() => openEditModal(po)}
-                    className="text-xs bg-blue-50 text-blue-600 px-3 py-1 rounded border border-blue-200 hover:bg-blue-100 transition-colors print:hidden"
+                    className="min-h-10 rounded border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-600 transition-colors hover:bg-blue-100 print:hidden"
                   >
                     編集
                   </button>
@@ -550,7 +554,7 @@ export default function Home() {
 
       {editingPostOffice && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 print:hidden">
-          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+          <div className="max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-lg bg-white p-4 shadow-xl sm:p-6">
             <h3 className="text-lg font-bold mb-4 border-b pb-2 text-gray-900">郵便局情報の編集</h3>
             
             <div className="space-y-4">

@@ -83,9 +83,19 @@ body {
 @media (max-width: 760px) {
     .topbar { align-items: stretch; flex-direction: column; gap: 10px; padding: 10px 12px; }
     .title-group h1 { font-size: 1.15rem; }
-    .search-group, .search-container { width: 100%; }
-    #prefectureSelect, #collectionFilter { min-width: 0; width: 42%; }
-    #officeSearch { width: 100%; min-width: 0; }
+    .search-group {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        width: 100%;
+    }
+    .search-container {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        width: 100%;
+    }
+    #prefectureSelect, #collectionFilter { min-width: 0; width: 100%; }
+    #officeSearch { grid-column: 1 / -1; width: 100%; min-width: 0; }
+    #searchBtn { width: 100%; }
     #content { flex-direction: column; }
     #results-panel { width: 100%; flex: 0 0 38%; border-left: 0; border-top: 1px solid #ddd; }
 }
