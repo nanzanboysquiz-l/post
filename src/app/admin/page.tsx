@@ -263,7 +263,9 @@ export default function AdminPage() {
           <section className="rounded bg-white p-4 shadow sm:p-6">
             <div className="mb-4 flex items-center justify-between gap-4">
               <div>
-                <h2 className="text-lg font-bold text-gray-800">座標未登録局</h2>
+                <h2 className="text-lg font-bold text-gray-800">
+                  座標未登録局（{missingCoordinates.length}局）
+                </h2>
                 <p className="text-sm text-gray-600">座標を登録すると、次回の地図読み込み時にピンが表示されます。</p>
               </div>
               <button
